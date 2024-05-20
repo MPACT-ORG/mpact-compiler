@@ -31,8 +31,8 @@ All following commands assume you remain in the `mpact-compiler` directory.
 The following commands initialize a virtual environment.
 
 ```shell
-python3.11 -m venv mlir_venv  # one time set up
-source mlir_venv/bin/activate # for each session
+python3.11 -m venv mpact_venv  # one time set up
+source mpact_venv/bin/activate # for each session
 ```
 
 ### Install build requirements
