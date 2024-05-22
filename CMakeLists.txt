@@ -13,6 +13,8 @@ set(MPACT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(MPACT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 message(STATUS "Building the MPACT compiler at ${MPACT_SOURCE_DIR} (into ${MPACT_BINARY_DIR})")
 
+set(MPACT_PYTHON_PACKAGES_DIR "${MPACT_BINARY_DIR}/python_packages")
+
 add_subdirectory(benchmark)
 add_subdirectory(python)
 add_subdirectory(test)

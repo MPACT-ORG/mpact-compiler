@@ -38,7 +38,7 @@ source mpact_venv/bin/activate # for each session
 Also make sure to set the Python paths as follows.
 
 ```shell
-export PYTHONPATH=`pwd`/build/tools/torch-mlir/python_packages/torch_mlir:`pwd`/python
+export PYTHONPATH=`pwd`/build/tools/torch-mlir/python_packages/torch_mlir:`pwd`/build/tools/mpact/python_packages/mpact
 ```
 
 ### Install build requirements

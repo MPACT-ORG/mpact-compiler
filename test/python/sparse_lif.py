@@ -2,7 +2,7 @@
 
 import torch
 
-from mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
+from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
 
 
 def spike(input):
