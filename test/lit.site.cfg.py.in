@@ -1,0 +1,23 @@
+@LIT_SITE_CFG_IN_HEADER@
+
+import sys
+
+config.host_os = "@HOST_OS@"
+config.mpact_src_root = "@MPACT_SOURCE_DIR@"
+config.mpact_obj_root = "@MPACT_BINARY_DIR@"
+config.torch_mlir_obj_root = "@LLVM_BINARY_DIR@/tools/torch-mlir"
+config.llvm_src_root = "@LLVM_SOURCE_DIR@"
+config.llvm_obj_root = "@LLVM_BINARY_DIR@"
+config.llvm_tools_dir = "@LLVM_TOOLS_DIR@"
+config.llvm_build_dir = "@CMAKE_BINARY_DIR@"
+config.llvm_lib_dir = "@LLVM_LIBS_DIR@"
+config.llvm_shlib_dir = "@SHLIBDIR@"
+config.llvm_shlib_ext = "@SHLIBEXT@"
+config.llvm_exe_ext = "@EXEEXT@"
+config.python_executable = "@Python3_EXECUTABLE@"
+
+import lit.llvm
+lit.llvm.initialize(lit_config, config)
+
+# Let the main config do the real work.
+lit_config.load_config(config, "@MPACT_SOURCE_DIR@/test/lit.cfg.py")
