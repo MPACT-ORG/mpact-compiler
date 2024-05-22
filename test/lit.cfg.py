@@ -51,8 +51,8 @@ llvm_config.with_environment(
 )
 llvm_config.with_system_environment(["HOME", "INCLUDE", "LIB", "TMP", "TEMP"])
 
-# On Windows the path to python could contains spaces in which case it needs to
-# be provided in quotes.  This is the equivalent of how %python is setup in
+# On Windows the path to python could contain spaces in which case it needs to
+# be provided in quotes. This is the equivalent of how %python is setup in
 # llvm/utils/lit/lit/llvm/config.py.
 if "Windows" in config.host_os:
     config.python_executable = '"%s"' % (config.python_executable)
