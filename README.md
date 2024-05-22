@@ -21,7 +21,7 @@ Use the following commands to clone the MPACT compiler repository.
 ```shell
 git clone https://github.com/MPACT-ORG/mpact-compiler.git
 cd mpact-compiler
-git submodule update --init --progress
+git submodule update --init --recursive --progress
 ```
 
 All following commands assume you remain in the `mpact-compiler` directory.
