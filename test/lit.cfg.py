@@ -73,7 +73,7 @@ llvm_config.add_tool_substitutions(tools, tool_dirs)
 llvm_config.with_environment(
     "PYTHONPATH",
     [
-        os.path.join(config.mpact_src_root, "python"),
+        os.path.join(config.mpact_obj_root, "python_packages/mpact"),
         os.path.join(config.torch_mlir_obj_root, "python_packages/torch_mlir"),
     ],
     append_path=True,
