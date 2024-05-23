@@ -24,7 +24,7 @@ cd mpact-compiler
 git submodule update --init --recursive --progress
 ```
 
-All following commands assume you remain in the `mpact-compiler` directory.
+All of the following commands assume you remain in the `mpact-compiler` directory.
 
 ### Setup Python virtual environment
 
@@ -32,13 +32,30 @@ The following commands initialize a virtual environment.
 
 ```shell
 python3.11 -m venv mpact_venv  # one time set up
-source mpact_venv/bin/activate # for each session
 ```
 
-Also make sure to set the Python paths as follows.
+NOTE: every session you have in this repo requires one of the following
+three commands (maybe add it to your .*sh file?).  (Remember to replace
+"<path_to_mpact_compiler>" with your specific path.)
+```shell
+source <path_to_mpact_compiler>/mpact_venv/bin/activate # for bash/sh/etc.
+
+source <path_to_mpact_compiler>/mpact_venv/bin/activate.csh # for csh/tcsh/etc.
+
+source <path_to_mpact_compiler>/mpact_venv/bin/activate.fish # for fish/etc.
+```
+
+Also make sure to set the Python paths as follows -- note that shell
+syntax depends on the shell you're running, and you need to replace
+"<path_to_mpact_compiler>" with your specific path.
 
 ```shell
-export PYTHONPATH=`pwd`/build/tools/torch-mlir/python_packages/torch_mlir:`pwd`/build/tools/mpact/python_packages/mpact
+# FOR bash/sh/etc.
+export PYTHONPATH=<path_to_mpact_compiler>/build/tools/torch-mlir/python_packages/torch_mlir: \\
+        <path_to_mpact_compiler>/build/tools/mpact/python_packages/mpact
+
+# FOR csh/tcsh/etc.
+setenv PYTHONPATH <path_to_mpact_compiler>/build/tools/torch-mlir/python_packages/torch_mlir:<path_to_mpact_compiler>/build/tools/mpact/python_packages/mpact
 ```
 
 ### Install build requirements
@@ -57,6 +74,12 @@ python -m pip install -r externals/torch-mlir/torchvision-requirements.txt
 The following command generates configuration files to build the MPACT compiler
 project completely *in-tree*, which means that both LLVM as well as torch-mlir
 are built from source.
+
+NOTE: if using csh/tcsh/etc., run the following command:
+
+```shell
+rehash
+```
 
 ```shell
 cmake -GNinja -Bbuild \
