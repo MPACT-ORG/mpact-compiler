@@ -4,7 +4,7 @@
 
 The MPACT project's main objective is to dramatically reduce the effort
 required to create highly optimizing HPC and ML compilers for a large class
-of architectures using LLVM and MLIR.  We will do this by providing a
+of architectures using LLVM and MLIR.  We do this by providing a
 declarative language-based mechanism for collecting and expressing
 critical aspects of a target architecture in a way that can be reasoned
 about and leveraged by all passes in both MLIR and LLVM.
