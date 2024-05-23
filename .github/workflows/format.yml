@@ -3,10 +3,7 @@ name: "code_formatter"
 permissions:
   contents: read
 
-on:
-  pull_request:
-    branches:
-      - main
+on: [pull_request]
 
 jobs:
   code_formatter:
