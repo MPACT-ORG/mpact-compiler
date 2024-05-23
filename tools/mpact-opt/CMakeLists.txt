@@ -11,5 +11,7 @@ target_link_libraries(mpact-opt PRIVATE
   TorchMLIRInitAll
   TorchMLIRTorchDialect
   TorchMLIRTorchPasses
+
+  MPACTTransformPasses
   ${dependency_libraries}
 )

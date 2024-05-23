@@ -40,6 +40,23 @@ include_directories(${MLIR_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
+function(mpact_target_includes target)
+  set(_dirs
+    $<BUILD_INTERFACE:${MLIR_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${MPACT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${MPACT_BINARY_DIR}/include>
+  )
+  # In LLVM parlance, the actual target may just be an interface and may not
+  # be responsible for actually compiling anything. The corresponding obj.
+  # target, when present, is just used for compilation and does not
+  # contribute to the interface properties.
+  # TODO: Normalize this upstream.
+  target_include_directories(${target} PUBLIC ${_dirs})
+  if(TARGET obj.${target})
+    target_include_directories(obj.${target} PRIVATE ${_dirs})
+  endif()
+endfunction()
+
 add_subdirectory(include)
 add_subdirectory(lib)
 add_subdirectory(tools)
