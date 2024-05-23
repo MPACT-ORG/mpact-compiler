@@ -20,7 +20,7 @@ from torch_mlir_e2e_test.linalg_on_tensors_backends.refbackend import (
 
 # One time set up of support library and optimization level.
 SUPPORT_LIB = os.getenv("SUPPORT_LIB", default=None)
-SHARED_LIBS = [  ] if SUPPORT_LIB is None else [ SUPPORT_LIB ]
+SHARED_LIBS = [] if SUPPORT_LIB is None else [SUPPORT_LIB]
 OPT_LEVEL = int(os.getenv("OPT_LEVEL", default=2))
 
 
@@ -102,9 +102,7 @@ def get_ctype_func(func_name):
 
 class MpactBackendInvoker:
     def __init__(self, module):
-        self.ee = ExecutionEngine(
-            module, opt_level=OPT_LEVEL, shared_libs=SHARED_LIBS
-        )
+        self.ee = ExecutionEngine(module, opt_level=OPT_LEVEL, shared_libs=SHARED_LIBS)
         self.result = None
 
         return_funcs = get_return_funcs(module)
