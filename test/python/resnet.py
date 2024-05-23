@@ -269,7 +269,6 @@ x = torch.rand(1, 3, 16, 16)
 #
 
 with torch.no_grad():
-
     # Run it with PyTorch.
     print("pytorch")
     res1 = resnet(x)
