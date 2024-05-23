@@ -1,6 +1,12 @@
 name: "code_formatter"
 
-on: [push, pull_request]
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   code_formatter:
