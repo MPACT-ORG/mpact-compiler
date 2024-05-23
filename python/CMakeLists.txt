@@ -14,6 +14,13 @@ declare_mlir_python_sources(MPACTPythonSources.PublicAPI
     mpactbackend.py
 )
 
+declare_mlir_python_sources(MPACTPythonSources.SampleModels
+  ROOT_DIR "${MPACT_PYTHON_ROOT_DIR}"
+  ADD_TO_PARENT MPACTPythonSources
+  SOURCES
+    models/resnet.py
+)
+
 #-------------------------------------------------------------------------------
 # Python Modules
 #-------------------------------------------------------------------------------
