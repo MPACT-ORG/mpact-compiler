@@ -20,11 +20,11 @@ set(MPACT_PYTHON_PACKAGES_DIR "${MPACT_BINARY_DIR}/python_packages")
 #-------------------------------------------------------------------------------
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  message(STATUS "Torch-MLIR out-of-tree build.")
+  message(STATUS "MPACT out-of-tree build.")
   message(FATAL_ERROR "TODO")
 else()
-  message(STATUS "Torch-MLIR in-tree build.")
-  # In-tree build with LLVM_EXTERNAL_PROJECTS=torch-mlir
+  message(STATUS "MPACT in-tree build.")
+  # In-tree build with LLVM_EXTERNAL_PROJECTS=mpact
 
   option(MLIR_ENABLE_BINDINGS_PYTHON "Enables MLIR Python Bindings" OFF)
 
