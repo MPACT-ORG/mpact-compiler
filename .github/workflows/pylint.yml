@@ -1,30 +1,29 @@
-name: Pylint on Changed Files
+name: Black (python)
 
 on: [push, pull_request]
 
 jobs:
-  pylint:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout branch
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Important for git diff to work correctly
+          fetch-depth: 0
 
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@v39
         with:
-          files: |
-            **.py
+          separator: ","
+          skip_initial_fetch: true
 
-      - name: Set up Python
+      - name: Setup Python env
         uses: actions/setup-python@v3
-        with:
-          python-version: '3.11' 
 
-      - name: Install pylint
-        run: pip install pylint
+      - name: Install black and reorder-python-imports
+        run: pip install black reorder-python-imports
 
-      - name: Run pylint on changed files
-        run: pylint ${{ steps.changed-files.outputs.all_changed_files }}
+      - name: Black and Sort changed files
+        run: |
+          black --check reorder-python-imports ${{ steps.changed-files.outputs.all_changed_files }}
