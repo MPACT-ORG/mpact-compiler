@@ -1,4 +1,4 @@
-name: "code formatting"
+name: "code_formatter"
 
 permissions:
   contents: read
