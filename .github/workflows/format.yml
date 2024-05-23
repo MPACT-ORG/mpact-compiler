@@ -3,7 +3,7 @@ name: "code_formatter"
 permissions:
   contents: read
 
-on: [pull_request]
+on: [push, pull_request]
 
 jobs:
   code_formatter:
