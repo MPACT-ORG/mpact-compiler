@@ -12,6 +12,7 @@
 #include "mlir/Dialect/Tensor/IR/Tensor.h"
 #include "mlir/Tools/mlir-opt/MlirOptMain.h"
 #include "mlir/Transforms/Passes.h"
+#include "mpact/Transforms/Passes.h"
 #include "torch-mlir/InitAll.h"
 
 #ifdef TORCH_MLIR_ENABLE_STABLEHLO
@@ -21,6 +22,8 @@
 using namespace mlir;
 
 int main(int argc, char **argv) {
+  mlir::mpact::registerTransformPasses();
+
   mlir::torch::registerAllPasses();
 
   // Core Transforms
