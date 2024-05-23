@@ -17,6 +17,7 @@ from torch_mlir_e2e_test.linalg_on_tensors_backends.refbackend import (
     LinalgOnTensorsBackend,
 )
 
+a = [  ]
 
 def assert_arg_type_is_supported(ty):
     SUPPORTED = [
