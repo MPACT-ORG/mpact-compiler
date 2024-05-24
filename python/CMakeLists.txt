@@ -21,7 +21,14 @@ declare_mlir_python_sources(MPACTPythonSources.PublicAPI
   ADD_TO_PARENT MPACTPythonSources
   SOURCES
     mpactbackend.py
-  )
+)
+
+declare_mlir_python_sources(MPACTPythonSources.SampleModels
+  ROOT_DIR "${MPACT_PYTHON_ROOT_DIR}"
+  ADD_TO_PARENT MPACTPythonSources
+  SOURCES_GLOB
+    models/*.py
+)
 
 #-------------------------------------------------------------------------------
 # Extensions
@@ -38,21 +45,9 @@ declare_mlir_python_extension(MPACTPythonExtensions.Main
     LLVMSupport
 )
 
-declare_mlir_python_sources(MPACTPythonSources.SampleModels
-  ROOT_DIR "${MPACT_PYTHON_ROOT_DIR}"
-  ADD_TO_PARENT MPACTPythonSources
-  SOURCES_GLOB
-    models/*.py
-)
-
 #-------------------------------------------------------------------------------
 # Python Modules
 #-------------------------------------------------------------------------------
-
-# To compiler TorchMLIRPythonExtension (which registers torch dialect and
-# related passes).
-# TODO: is there a cleaner way?
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../externals/torch-mlir/include)
 
 set(_source_components
   MLIRPythonSources
@@ -61,6 +56,7 @@ set(_source_components
 
   # We need the FxImporter from torch-mlir
   TorchMLIRPythonSources.Importers
+  TorchMLIRPythonSources.Dialects
   TorchMLIRPythonExtensions
 
   MPACTPythonSources
