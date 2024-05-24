@@ -68,5 +68,6 @@ jobs:
         "externals/torch-mlir/externals/llvm-project/llvm"
 
     - name: Build
-      run: cmake --build build --config ${{ matrix.build_type }} --target check-mpact
+      # run: cmake --build build --config ${{ matrix.build_type }} --target check-mpact
+      run: ninja -C build -k 0 check-mpact
 
