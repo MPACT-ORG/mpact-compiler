@@ -1,5 +1,6 @@
 import torch
 
+
 def spike(input):
     return (input >= 0).float()
 
