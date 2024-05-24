@@ -27,7 +27,6 @@ with torch.no_grad():
     print(res1)
 
     # Run it with MPACT.
-    # TODO: make this work
     print("mpact")
     res2 = mpact_jit(resnet, x)
     print(res2)
