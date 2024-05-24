@@ -6,7 +6,6 @@
 # causes pure duplication as part of Python wheels.
 set(CMAKE_PLATFORM_NO_VERSIONED_SONAME ON)
 
-
 # The directory at which the Python import tree begins.
 set(MPACT_PYTHON_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/mpact")
 
@@ -21,7 +20,17 @@ declare_mlir_python_sources(MPACTPythonSources.PublicAPI
   ADD_TO_PARENT MPACTPythonSources
   SOURCES
     mpactbackend.py
-  )
+)
+
+declare_mlir_python_sources(MPACTPythonSources.SampleModels
+  ROOT_DIR "${MPACT_PYTHON_ROOT_DIR}"
+  ADD_TO_PARENT MPACTPythonSources
+  SOURCES
+    models/gcn.py
+    models/kernels.py
+    models/lif.py
+    models/resnet.py
+)
 
 #-------------------------------------------------------------------------------
 # Extensions
@@ -38,21 +47,9 @@ declare_mlir_python_extension(MPACTPythonExtensions.Main
     LLVMSupport
 )
 
-declare_mlir_python_sources(MPACTPythonSources.SampleModels
-  ROOT_DIR "${MPACT_PYTHON_ROOT_DIR}"
-  ADD_TO_PARENT MPACTPythonSources
-  SOURCES_GLOB
-    models/*.py
-)
-
 #-------------------------------------------------------------------------------
 # Python Modules
 #-------------------------------------------------------------------------------
-
-# To compiler TorchMLIRPythonExtension (which registers torch dialect and
-# related passes).
-# TODO: is there a cleaner way?
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../externals/torch-mlir/include)
 
 set(_source_components
   MLIRPythonSources
