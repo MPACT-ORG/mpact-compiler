@@ -41,8 +41,8 @@ declare_mlir_python_extension(MPACTPythonExtensions.Main
 declare_mlir_python_sources(MPACTPythonSources.SampleModels
   ROOT_DIR "${MPACT_PYTHON_ROOT_DIR}"
   ADD_TO_PARENT MPACTPythonSources
-  SOURCES
-    models/resnet.py
+  SOURCES_GLOB
+    models/*.py
 )
 
 #-------------------------------------------------------------------------------

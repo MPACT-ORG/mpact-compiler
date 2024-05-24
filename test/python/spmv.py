@@ -3,12 +3,9 @@
 import torch
 
 from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
+from mpact.models.kernels import MVNet
 
-class SpMVNet(torch.nn.Module):
-    def forward(self, x, v):
-        return torch.mv(x, v)
-
-net = SpMVNet()
+net = MVNet()
 
 # Get a fixed vector and matrix (which we make 2x2 block "sparse").
 dense_vector = torch.arange(1, 11, dtype=torch.float32)
