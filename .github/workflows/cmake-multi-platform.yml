@@ -60,7 +60,7 @@ jobs:
 
     - name: Install requirements
       run: |
-           export CCACHE_DIR="$HOME/.ccache"
+           export CCACHE_DIR=${{ env.CACHE_DIR }}
            echo "$PWD"
            echo "$CCACHE_DIR"
            ls "$CCACHE_DIR"
