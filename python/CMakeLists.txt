@@ -2,8 +2,16 @@
 # The MPACT Compiler Python Modules
 #-------------------------------------------------------------------------------
 
+# Disables generation of "version soname" (i.e. libFoo.so.<version>), which
+# causes pure duplication as part of Python wheels.
+set(CMAKE_PLATFORM_NO_VERSIONED_SONAME ON)
+
+
 # The directory at which the Python import tree begins.
 set(MPACT_PYTHON_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/mpact")
+
+# We vendor our own MLIR instance in the `mpact` namespace.
+add_compile_definitions("MLIR_PYTHON_PACKAGE_PREFIX=mpact.")
 
 declare_mlir_python_sources(MPACTPythonSources)
 declare_mlir_python_sources(MPACTPythonExtensions)
@@ -34,6 +42,9 @@ declare_mlir_python_extension(MPACTPythonExtensions.Main
 # Python Modules
 #-------------------------------------------------------------------------------
 
+# To compiler TorchMLIRPythonExtension (which registers torch dialect and
+# related passes).
+# TODO: is there a cleaner way?
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../externals/torch-mlir/include)
 
 set(_source_components
@@ -41,6 +52,7 @@ set(_source_components
   MLIRPythonExtension.Core
   MLIRPythonExtension.RegisterEverything
 
+  # We need the FxImporter from torch-mlir
   TorchMLIRPythonSources.Importers
   TorchMLIRPythonExtensions
 

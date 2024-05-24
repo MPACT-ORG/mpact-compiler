@@ -9,4 +9,4 @@ add_mlir_public_c_api_library(MPACTCAPI
   MPACTTransformPasses
 )
 
-torch_mlir_target_includes(MPACTCAPI)
+mpact_target_includes(MPACTCAPI)
