@@ -58,7 +58,7 @@ set(_source_components
 
   # We need the FxImporter from torch-mlir
   TorchMLIRPythonSources.Importers
-  TorchMLIRPythonExtensions
+  TorchMLIRPythonSources.Dialects
 
   MPACTPythonSources
   MPACTPythonExtensions
@@ -70,6 +70,7 @@ add_mlir_python_common_capi_library(MPACTAggregateCAPI
   OUTPUT_DIRECTORY "${MPACT_PYTHON_PACKAGES_DIR}/mpact/mpact/_mlir_libs"
   RELATIVE_INSTALL_ROOT ".."
   DECLARED_SOURCES ${_source_components}
+  EMBED_LIBS TorchMLIRCAPI
 )
 
 add_mlir_python_modules(MPACTPythonModules
