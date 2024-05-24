@@ -5,18 +5,69 @@ import torch
 
 from typing import Any, Callable, Optional, Tuple, Dict
 
-from torch_mlir import ir
-from torch_mlir.compiler_utils import run_pipeline_with_repro_report
-from torch_mlir.dialects import torch as torch_d
-from torch_mlir.execution_engine import *
-from torch_mlir.extras.fx_importer import FxImporter, SparsityMeta
-from torch_mlir.ir import *
-from torch_mlir.passmanager import *
-from torch_mlir.runtime import *
+from mpact import ir
+# from mpact.compiler_utils import run_pipeline_with_repro_report
+from mpact.dialects import torch as torch_d
+from mpact.execution_engine import *
+from mpact.extras.fx_importer import FxImporter, SparsityMeta
+from mpact.ir import *
+from mpact.passmanager import *
+from mpact.runtime import *
 
-from torch_mlir_e2e_test.linalg_on_tensors_backends.refbackend import (
-    LinalgOnTensorsBackend,
-)
+# Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+# See https://llvm.org/LICENSE.txt for license information.
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+# Also available under a BSD-style license. See LICENSE.
+
+import abc
+from typing import TypeVar
+
+import torch
+
+from mpact.ir import Module
+
+# A type shared between the result of `LinalgOnTensorsBackend.compile` and the
+# input to `LinalgOnTensorsBackend.load`. Each backend will likely have a
+# different definition of this type.
+CompiledArtifact = TypeVar("CompiledArtifact")
+
+# A wrapper around a backend-specific loaded program representation
+# that uniformly translates the `x.method(...)` interface expected of
+# Torch modules into appropriate lower-level operations.
+Invoker = TypeVar("Invoker")
+
+
+class LinalgOnTensorsBackend(abc.ABC):
+    """The interface to an linalg-on-tensors backend.
+
+    Backends are recommended to raise meaningful exceptions in case of error,
+    ideally with easy reproduction instructions.
+    """
+
+    @abc.abstractmethod
+    def compile(self, module: Module) -> CompiledArtifact:
+        """Compile the provided MLIR module into a compiled artifact.
+
+        The module adheres to the linalg-on-tensors backend contract
+        (see the VerifyLinalgOnTensorsBackendContract pass).
+
+        The compiled artifact can be any type, but must be correctly
+        interpreted by the `load` method.
+        """
+
+    @abc.abstractmethod
+    def load(self, artifact: CompiledArtifact) -> Invoker:
+        """Load the compiled artifact into a uniformly invokable form.
+
+        The compiled artifact is the result of a previous call to `compile`.
+
+        See the description of `Invoker` for the requirements on the returned
+        type.
+        """
+
+# from torch_mlir_e2e_test.linalg_on_tensors_backends.refbackend import (
+#     LinalgOnTensorsBackend,
+# )
 
 # One time set up of support library and optimization level.
 SUPPORT_LIB = os.getenv("SUPPORT_LIB", default=None)
@@ -153,6 +204,10 @@ LOWERING_PIPELINE = (
             "func.func(linalg-generalize-named-ops)",
             "func.func(linalg-fuse-elementwise-ops)",
             "convert-shape-to-std",
+            # Propagate sparse encodings before sparsifier mini-pipeline.
+            # TODO: the following pass currently contains no pattern. Will be
+            # added as needed.
+            "func.func(sparse-encoding-propagation)",
             # MLIR Sparsifier mini-pipeline.
             "sparse-assembler{direct-out}",
             "sparsification-and-bufferization",

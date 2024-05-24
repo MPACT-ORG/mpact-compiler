@@ -64,7 +64,7 @@ tool_dirs = [
     config.mpact_obj_root,
 ]
 tools = [
-    "torch-mlir-opt",
+    "mpact-opt",
     ToolSubst("%PYTHON", config.python_executable, unresolved="ignore"),
 ]
 
@@ -74,7 +74,7 @@ llvm_config.with_environment(
     "PYTHONPATH",
     [
         os.path.join(config.mpact_obj_root, "python_packages/mpact"),
-        os.path.join(config.torch_mlir_obj_root, "python_packages/torch_mlir"),
+        # os.path.join(config.torch_mlir_obj_root, "python_packages/torch_mlir"),
     ],
     append_path=True,
 )
