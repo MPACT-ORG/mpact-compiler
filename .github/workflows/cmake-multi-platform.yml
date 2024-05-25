@@ -31,20 +31,12 @@ jobs:
           submodules: recursive
           token: ${{ secrets.GITHUB_TOKEN }}
 
-    # - name: Enable cache
-    #   uses: actions/cache/restore@v3
-    #   with:
-    #     path: ${{ env.CACHE_DIR }}
-    #     key: build-test-cpp-asserts-manylinux-${{ github.sha }}
-    #     restore-keys: |
-    #       build-test-cpp-asserts-manylinux-
-
     - uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
+          pip-
 
     - name: Setup Python Version
       uses: actions/setup-python@v5
@@ -87,13 +79,5 @@ jobs:
         "externals/torch-mlir/externals/llvm-project/llvm"
 
     - name: Build
-      # run: cmake --build build --config ${{ matrix.build_type }} --target check-mpact
-      run: ninja -C build -k 0 check-mpact
-
-    # - name: Save cache
-    #   uses: actions/cache/save@v3
-    #   if: ${{ !cancelled() }}
-    #   with:
-    #     path: ${{ env.CACHE_DIR }}
-    #     key: build-test-cpp-asserts-manylinux-${{ github.sha }}
+      run: cmake --build build --config ${{ matrix.build_type }} --target check-mpact
 
