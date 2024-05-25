@@ -53,9 +53,6 @@ jobs:
     - name: Install requirements
       run: |
            export CCACHE_DIR=${{ env.CACHE_DIR }}
-           echo "$PWD"
-           echo "$CCACHE_DIR"
-           ls "$CCACHE_DIR"
            python -m pip install --upgrade pip
            python -m pip install -r externals/torch-mlir/requirements.txt
            python -m pip install -r externals/torch-mlir/torchvision-requirements.txt
