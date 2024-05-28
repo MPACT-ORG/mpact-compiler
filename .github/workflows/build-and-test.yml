@@ -58,6 +58,7 @@ jobs:
         cmake -GNinja -Bbuild
         -DCMAKE_BUILD_TYPE=Release
         -DLLVM_ENABLE_PROJECTS=mlir
+        -DLLVM_ENABLE_ASSERTIONS=ON
         -DLLVM_EXTERNAL_PROJECTS="torch-mlir;mpact"
         -DLLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR="${PWD}/externals/torch-mlir"
         -DLLVM_EXTERNAL_MPACT_SOURCE_DIR="${PWD}"
