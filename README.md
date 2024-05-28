@@ -9,6 +9,8 @@ declarative language-based mechanism for collecting and expressing
 critical aspects of a target architecture in a way that can be reasoned
 about and leveraged by all passes in both MLIR and LLVM.
 
+test
+
 ## Building the MPACT compiler
 
 To build and run the MPACT compiler from source (for developers),
