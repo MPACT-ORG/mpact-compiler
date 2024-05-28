@@ -31,23 +31,16 @@ jobs:
           submodules: recursive
           token: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          pip-
-
     - name: Setup Python Version
       uses: actions/setup-python@v5
       with:
         python-version: 3.11 # Install the python version needed
 
     - name: Set PYTHONPATH
-      run: export PYTHONPATH=build/tools/torch-mlir/python_packages/torch_mlir:build/tools/mpact/python_packages/mpact
+      run: export PYTHONPATH=build/tools/mpact/python_packages/mpact
       shell: bash
 
-    - name: ccache
+    - name: Set up ccache
       uses: hendrikmuhs/ccache-action@v1.2
 
     - name: Install requirements
@@ -59,6 +52,7 @@ jobs:
    
     - name: Create build directory
       run: mkdir build
+
     - name: Configure CMake
       run: >
         cmake -GNinja -Bbuild
