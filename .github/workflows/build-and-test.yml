@@ -6,23 +6,16 @@ on:
   pull_request:
     branches: [ "main" ]
 
+concurrency:
+  # A PR number if a pull request and otherwise the commit hash. This cancels
+  # queued and in-progress runs for the same PR (presubmit) or commit
+  # (postsubmit).
+  group: ci-build-test-cpp-linux-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
-      fail-fast: false
-
-      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
-      matrix:
-        os: [ubuntu-latest]
-        build_type: [Release]
-        c_compiler: [clang]
-        include:
-          - os: ubuntu-latest
-            c_compiler: clang
-            cpp_compiler: clang++
+    runs-on: ubuntu-latest
     env:
       CACHE_DIR: ${{ github.workspace }}/.ccache    
     steps:
@@ -71,5 +64,5 @@ jobs:
         "externals/torch-mlir/externals/llvm-project/llvm"
 
     - name: Build
-      run: cmake --build build --config ${{ matrix.build_type }} --target check-mpact
+      run: cmake --build build --target check-mpact
 
