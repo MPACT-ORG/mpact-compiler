@@ -1,27 +1,134 @@
+# Initialize mpact python extension.
+import mpact._mlir_libs._mpact
+
+import abc
 import ctypes
+from enum import Enum
+from io import StringIO
 import numpy as np
 import os
+import sys
+import tempfile
 import torch
 
-from typing import Any, Callable, Optional, Tuple, Dict
+from typing import Any, Callable, Optional, Tuple, Dict, TypeVar, Union
 
-from torch_mlir import ir
-from torch_mlir.compiler_utils import run_pipeline_with_repro_report
-from torch_mlir.dialects import torch as torch_d
-from torch_mlir.execution_engine import *
-from torch_mlir.extras.fx_importer import FxImporter, SparsityMeta
-from torch_mlir.ir import *
-from torch_mlir.passmanager import *
-from torch_mlir.runtime import *
-
-from torch_mlir_e2e_test.linalg_on_tensors_backends.refbackend import (
-    LinalgOnTensorsBackend,
-)
+from mpact import ir
+from mpact.ir import Module
+from mpact.dialects import torch as torch_d
+from mpact.execution_engine import *
+from mpact.extras.fx_importer import FxImporter, SparsityMeta
+from mpact.ir import *
+from mpact.passmanager import *
+from mpact.runtime import *
 
 # One time set up of support library and optimization level.
 SUPPORT_LIB = os.getenv("SUPPORT_LIB", default=None)
 SHARED_LIBS = [] if SUPPORT_LIB is None else [SUPPORT_LIB]
 OPT_LEVEL = int(os.getenv("OPT_LEVEL", default=2))
+
+# A type shared between the result of `LinalgOnTensorsBackend.compile` and the
+# input to `LinalgOnTensorsBackend.load`. Each backend will likely have a
+# different definition of this type.
+CompiledArtifact = TypeVar("CompiledArtifact")
+
+# A wrapper around a backend-specific loaded program representation
+# that uniformly translates the `x.method(...)` interface expected of
+# Torch modules into appropriate lower-level operations.
+Invoker = TypeVar("Invoker")
+
+
+class LinalgOnTensorsBackend(abc.ABC):
+    """The interface to an linalg-on-tensors backend.
+
+    Backends are recommended to raise meaningful exceptions in case of error,
+    ideally with easy reproduction instructions.
+    """
+
+    @abc.abstractmethod
+    def compile(self, module: Module) -> CompiledArtifact:
+        """Compile the provided MLIR module into a compiled artifact.
+
+        The module adheres to the linalg-on-tensors backend contract
+        (see the VerifyLinalgOnTensorsBackendContract pass).
+
+        The compiled artifact can be any type, but must be correctly
+        interpreted by the `load` method.
+        """
+
+    @abc.abstractmethod
+    def load(self, artifact: CompiledArtifact) -> Invoker:
+        """Load the compiled artifact into a uniformly invokable form.
+
+        The compiled artifact is the result of a previous call to `compile`.
+
+        See the description of `Invoker` for the requirements on the returned
+        type.
+        """
+
+
+def get_module_name_for_debug_dump(module):
+    """Gets a name suitable for a debug dump.
+
+    The name is not guaranteed to be unique.
+    """
+    if not "torch.debug_module_name" in module.operation.attributes:
+        return "UnnammedModule"
+    return StringAttr(module.operation.attributes["torch.debug_module_name"]).value
+
+
+class MPACTCompilerError(Exception):
+    pass
+
+
+def run_pipeline_with_repro_report(
+    module, pipeline: str, description: str, enable_ir_printing: bool = False
+):
+    """Runs `pipeline` on `module`, with a nice repro report if it fails."""
+    module_name = get_module_name_for_debug_dump(module)
+    original_stderr = sys.stderr
+    try:
+        sys.stderr = StringIO()
+        asm_for_error_report = module.operation.get_asm(
+            large_elements_limit=10, enable_debug_info=True
+        )
+        # Lower module in place to make it ready for compiler backends.
+        with module.context as ctx:
+            pm = PassManager.parse(pipeline)
+            if enable_ir_printing:
+                ctx.enable_multithreading(False)
+                pm.enable_ir_printing()
+            pm.run(module.operation)
+    except Exception as e:
+        # TODO: More robust.
+        # - don't arbitrarily clutter up /tmp. When a test suite has many
+        #   tests, this can be a big disk cost (also, /tmp/ is frequently a
+        #   RAM fs, which increases worries about capacity).
+        # - don't have colliding filenames (hard to do without cluttering
+        #   up /tmp)
+        # - if we do have have colliding filenames, writes should at least
+        #   avoid being racy.
+        filename = os.path.join(tempfile.gettempdir(), module_name + ".mlir")
+        with open(filename, "w") as f:
+            f.write(asm_for_error_report)
+        debug_options = "-mlir-print-ir-after-all -mlir-disable-threading"
+        # Put something descriptive here even if description is empty.
+        description = description or f"{module_name} compile"
+
+        message = f"""\
+            {description} failed with the following diagnostics:
+            {sys.stderr.getvalue()}
+
+            python exception: {e}
+
+            The error can be reproduced with:
+            $ mpact-opt -pass-pipeline='{pipeline}' {filename}
+            Add '{debug_options}' to get the IR dump for debugging purpose.
+            """
+        trimmed_message = "\n".join([m.lstrip() for m in message.split("\n")])
+        raise MPACTCompilerError(trimmed_message) from None
+    finally:
+        sys.stderr = original_stderr
 
 
 def assert_arg_type_is_supported(ty):
@@ -153,6 +260,10 @@ LOWERING_PIPELINE = (
             "func.func(linalg-generalize-named-ops)",
             "func.func(linalg-fuse-elementwise-ops)",
             "convert-shape-to-std",
+            # Propagate sparse encodings before sparsifier mini-pipeline.
+            # TODO: the following pass currently contains no pattern. Will be
+            # added as needed.
+            "func.func(sparse-encoding-propagation)",
             # MLIR Sparsifier mini-pipeline.
             "sparse-assembler{direct-out}",
             "sparsification-and-bufferization",
