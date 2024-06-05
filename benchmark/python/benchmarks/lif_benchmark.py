@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from mpact.models.lif import Block
-from mpact.utils.benchmark_utils import benchmark, Backends
+from mpact_benchmark.utils.benchmark_utils import benchmark, Backends
 
 
 @benchmark(

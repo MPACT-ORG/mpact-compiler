@@ -61,7 +61,6 @@ set(_source_components
 
   MPACTPythonSources
   MPACTPythonExtensions
-  MPACTBenchmarkPythonSources
 )
 
 add_mlir_python_common_capi_library(MPACTAggregateCAPI

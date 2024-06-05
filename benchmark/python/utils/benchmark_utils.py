@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, Callable
 from torch.utils import benchmark as torch_benchmark
 from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
-from mpact.utils.tensor_generator import generate_inputs
+from mpact_benchmark.utils.tensor_generator import generate_inputs
 
 
 class Backends(Enum):
