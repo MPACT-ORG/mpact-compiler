@@ -12,14 +12,10 @@
 #   CMAKE_BUILD_TYPE:
 #       specify the build type: DEBUG/RelWithDebInfo/Release
 #
-#   MPACT_CMAKE_BUILD_DIR:
-#       specify the cmake build directory
-#
 #   MPACT_CMAKE_ALREADY_BUILT:
 #       the `MPACT_CMAKE_BUILD_DIR` directory has already been compiled,
 #       and the CMake compilation process will not be executed again.
 #       On CIs, it is often advantageous to re-use/control the CMake build directory.
-#
 #
 # It is recommended to build with Ninja and ccache. To do so, set environment
 # variables by prefixing to above invocations:
@@ -52,7 +48,6 @@ def _check_env_flag(name: str, default=None) -> bool:
 PACKAGE_VERSION = "".join(str(date.today()).split("-"))
 SRC_DIR = pathlib.Path(__file__).parent.absolute()
 CMAKE_BUILD_TYPE = os.getenv("CMAKE_BUILD_TYPE", "Release")
-
 MPACT_CMAKE_ALREADY_BUILT = _check_env_flag("MPACT_CMAKE_ALREADY_BUILT", False)
 MPACT_CMAKE_BUILD_DIR = os.path.join(SRC_DIR, "build")
 
