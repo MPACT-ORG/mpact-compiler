@@ -29,6 +29,11 @@ adj_mat = torch.rand(4, 4).to_sparse()
 # CHECK:         [5.7501717 5.7501717 5.7501717 5.7501717]
 # CHECK:         [4.697952  4.697952  4.697952  4.697952 ]
 # CHECK:         [3.640687  3.640687  3.640687  3.640687 ]{{\]}}
+# CHECK: mpact compile opt=3
+# CHECK: mpact run
+# CHECK:   {{\[}}[4.477828  4.477828  4.477828  4.477828 ]
+# CHECK:         [5.7501717 5.7501717 5.7501717 5.7501717]
+# CHECK:         [4.697952  4.697952  4.697952  4.697952 ]
 #
 with torch.no_grad():
     # Run it with PyTorch.
@@ -44,6 +49,13 @@ with torch.no_grad():
     # Run it with MPACT (with separate compile and run steps).
     print("mpact compile")
     invoker, fn = mpact_jit_compile(net, inp, adj_mat)
+    print("mpact run")
+    res = mpact_jit_run(invoker, fn, inp, adj_mat)
+    print(res)
+
+    # Run it with MPACT (with separate compile and run steps, given opt_level).
+    print("mpact compile opt=3")
+    invoker, fn = mpact_jit_compile(net, inp, adj_mat, opt_level=3)
     print("mpact run")
     res = mpact_jit_run(invoker, fn, inp, adj_mat)
     print(res)
