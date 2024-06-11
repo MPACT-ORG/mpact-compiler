@@ -166,7 +166,9 @@ def nop() -> torch.nn.Module:
             "drange": (1, 100),
             "sparsity": [0, 0.5, 0.9, 0.99],
         }
-        for shape in [([2**i, 2**i], [2**i, 2**i], [2**i, 2**i]) for i in range(5, 8)]
+        for shape in [
+            ([2**i, 2**i], [2**i, 2**i], [2**i, 2**i]) for i in range(5, 8)
+        ]
         for sample_fmt in ["dense", "csr"]
         for dtype in [np.float64]
     ]
