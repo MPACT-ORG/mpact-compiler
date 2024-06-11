@@ -22,10 +22,9 @@ from mpact.ir import *
 from mpact.passmanager import *
 from mpact.runtime import *
 
-# One time set up of support library and optimization level.
+# One time set up of support library.
 SUPPORT_LIB = os.getenv("SUPPORT_LIB", default=None)
 SHARED_LIBS = [] if SUPPORT_LIB is None else [SUPPORT_LIB]
-OPT_LEVEL = int(os.getenv("OPT_LEVEL", default=2))
 
 # A type shared between the result of `LinalgOnTensorsBackend.compile` and the
 # input to `LinalgOnTensorsBackend.load`. Each backend will likely have a
@@ -208,8 +207,8 @@ def get_ctype_func(func_name):
 
 
 class MpactBackendInvoker:
-    def __init__(self, module):
-        self.ee = ExecutionEngine(module, opt_level=OPT_LEVEL, shared_libs=SHARED_LIBS)
+    def __init__(self, module, opt_level):
+        self.ee = ExecutionEngine(module, opt_level=opt_level, shared_libs=SHARED_LIBS)
         self.result = None
 
         return_funcs = get_return_funcs(module)
@@ -317,8 +316,9 @@ LOWERING_PIPELINE = (
 class MpactBackendLinalgOnTensorsBackend(LinalgOnTensorsBackend):
     """Main entry-point for the MPACT backend."""
 
-    def __init__(self):
+    def __init__(self, opt_level):
         super().__init__()
+        self.opt_level = opt_level
 
     def compile(self, imported_module: Module):
         """Compiles an imported module, with a flat list of functions.
@@ -339,7 +339,7 @@ class MpactBackendLinalgOnTensorsBackend(LinalgOnTensorsBackend):
 
     def load(self, module) -> MpactBackendInvoker:
         """Loads a compiled artifact into the runtime."""
-        return MpactBackendInvoker(module)
+        return MpactBackendInvoker(module, self.opt_level)
 
 
 def sparse_metadata(a: torch.Tensor) -> SparsityMeta:
@@ -467,7 +467,7 @@ def export_and_import(f, *args, **kwargs):
     return fx_importer.module
 
 
-def mpact_jit_compile(f, *args, **kwargs):
+def mpact_jit_compile(f, *args, opt_level=2, **kwargs):
     """This method compiles the given callable using the MPACT backend."""
     # Import module and lower into Linalg IR.
     module = export_and_import(f, *args, **kwargs)
@@ -482,7 +482,7 @@ def mpact_jit_compile(f, *args, **kwargs):
         enable_ir_printing=False,
     )
     # Compile with MPACT backend.
-    backend = MpactBackendLinalgOnTensorsBackend()
+    backend = MpactBackendLinalgOnTensorsBackend(opt_level=opt_level)
     compiled = backend.compile(module)
     invoker = backend.load(compiled)
     return invoker, f
@@ -527,6 +527,7 @@ def mpact_jit_run(invoker, f, *args, **kwargs):
     return invoker.main(*xargs)
 
 
+# Convenience wrapper.
 def mpact_jit(f, *args, **kwargs):
     """This method compiles and runs the given callable using the MPACT backend."""
     invoker, fn = mpact_jit_compile(f, *args, **kwargs)
