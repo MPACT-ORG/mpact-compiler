@@ -9,7 +9,7 @@ from mpact_benchmark.utils.benchmark_utils import benchmark, Backends
         {
             "name": f"{fmt}_{shape}_{dtype.__name__}",
             "shape": shape,
-            "formats": [fmt],
+            "formats": fmt,
             "dtype": dtype,
             # Simulate batch normalization.
             "drange": (-1, 1),
@@ -31,13 +31,13 @@ from mpact_benchmark.utils.benchmark_utils import benchmark, Backends
             [[32, 3, 64, 64, 1]],
             [[16, 3, 224, 224, 1]],
         ]
-        for fmt in ["dense"]
+        for fmt in [["dense"]]
         for dtype in [np.float64]
     ]
 )
 def SNN() -> torch.nn.Module:
     """Spiking Neural Network."""
-    return Block
+    return Block()
 
 
 if __name__ == "__main__":
