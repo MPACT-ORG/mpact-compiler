@@ -274,14 +274,9 @@ LOWERING_PIPELINE = (
             "func.func(refback-generalize-tensor-pad)",
             "func.func(refback-generalize-tensor-concat)",
             # Bufferize.
-            "func.func(scf-bufferize)",
             "func.func(tm-tensor-bufferize)",
-            "func.func(empty-tensor-to-alloc-tensor)",
-            "func.func(linalg-bufferize)",
-            "func-bufferize",
-            "arith-bufferize",
+            "one-shot-bufferize{copy-before-write bufferize-function-boundaries function-boundary-type-conversion=identity-layout-map}",
             "refback-mlprogram-bufferize",
-            "func.func(tensor-bufferize)",
             "func.func(finalizing-bufferize)",
             "func.func(buffer-deallocation)",
             # Inline sparse helper methods where useful (but after dealloc).
@@ -435,13 +430,13 @@ def sparse_export(
             # Zero preserving elt-wise unary op.
             if opname in {"abs", "neg", "relu", "sin"}:
                 node.meta["sparsity"] = node.args[0].meta.get("sparsity", None)
-            elif opname == "_to_sparse":
+            elif opname == "_to_sparse" or opname == "to_sparse":
                 dim = len(node.meta.get("val").shape)
                 node.meta["sparsity"] = SparsityMeta(
                     torch.sparse_coo, 0, dim, 0, None, torch.int64, torch.int64
                 )
             # TODO: Uncomment this to hack sparsity into the network.
-            # elif opname == "_to_dense":
+            # elif opname == "_to_dense" or opname == "to_dense":
             #     # hack (assumes we never really want the to_dense for now)
             #     node.meta["sparsity"] = node.args[0].meta.get("sparsity", None)
             elif opname == "select" and node.args[0].meta.get("sparsity", None):
