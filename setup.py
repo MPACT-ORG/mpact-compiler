@@ -96,7 +96,7 @@ class CMakeBuild(build_py):
             f".",
             f"--target",
             f"MPACTPythonModules",
-            f"MPACTBenchmarkPythonPythonModules",
+            f"MPACTBenchmarkPythonModules",
         ]
 
         try:

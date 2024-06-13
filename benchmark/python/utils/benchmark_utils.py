@@ -123,9 +123,18 @@ def run_benchmark(
                         )
                     )
                 case Backends.MPACT_SPARSE:
-                    output.append(
-                        torch.from_numpy(mpact_jit(torch_net, *sparse_inputs))
-                    )
+                    sp_out = mpact_jit(torch_net, *sparse_inputs)
+                    # Construct sparse csr tensor if the output type is csr.
+                    # TODO: return sparse tensor directly instead of a tuple of arrays.
+                    if type(sp_out) is tuple:
+                        # torch.sparse_csr_tensor could deduce the size incorrectly,
+                        # so pass the dense_out's shape explicitly.
+                        dense_out = mpact_jit(torch_net, *dense_inputs)
+                        output.append(
+                            torch.sparse_csr_tensor(*sp_out, size=dense_out.shape)
+                        )
+                    else:
+                        output.append(torch.from_numpy(sp_out))
                     invoker, f = mpact_jit_compile(torch_net, *sparse_inputs)
                     compile_time_results.append(
                         timer(
@@ -167,7 +176,11 @@ def run_benchmark(
 
     # Sanity check.
     if output:
-        assert all(output[0].to_dense().allclose(out.to_dense()) for out in output)
+        rtol = variables["precision"] if "precision" in variables else 1e-5
+        assert all(
+            torch.allclose(output[0].to_dense(), out.to_dense(), rtol=rtol)
+            for out in output
+        )
 
 
 def benchmark(*args: Any) -> Callable:
@@ -176,9 +189,9 @@ def benchmark(*args: Any) -> Callable:
     def decorator(func):
         @functools.wraps(func)
         def wrapper(test_cases=args[0]):
-            net = func()
             runtime_results = []
             compile_time_results = []
+            torch_net = net = func()
             for test_case in test_cases:
                 label = func.__name__
                 for sparsity in test_case["sparsity"]:
@@ -190,10 +203,11 @@ def benchmark(*args: Any) -> Callable:
                         test_case["dtype"],
                         test_case["drange"],
                     )
+
                     if "GCN" in label:
                         torch_net = net(*test_case["shape"][0])
-                    else:
-                        torch_net = net()
+                    if "precision" in test_case:
+                        precision = test_case["precision"]
 
                     run_benchmark(
                         sparse_inputs,
