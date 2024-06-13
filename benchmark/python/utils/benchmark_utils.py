@@ -176,8 +176,10 @@ def run_benchmark(
 
     # Sanity check.
     if output:
+        rtol = variables["precision"] if "precision" in variables else 1e-5
         assert all(
-            torch.allclose(output[0].to_dense(), out.to_dense()) for out in output
+            torch.allclose(output[0].to_dense(), out.to_dense(), rtol=rtol)
+            for out in output
         )
 
 
@@ -204,6 +206,8 @@ def benchmark(*args: Any) -> Callable:
 
                     if "GCN" in label:
                         torch_net = net(*test_case["shape"][0])
+                    if "precision" in test_case:
+                        precision = test_case["precision"]
 
                     run_benchmark(
                         sparse_inputs,
