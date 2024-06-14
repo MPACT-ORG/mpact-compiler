@@ -2,10 +2,8 @@
 # The MPACT Compiler Python Modules
 #-------------------------------------------------------------------------------
 
-# Disables generation of "version soname" (i.e. libFoo.so.<version>), which
-# causes pure duplication as part of Python wheels.
+# Disables generation of "version soname" (i.e. libFoo.so.<version>).
 set(CMAKE_PLATFORM_NO_VERSIONED_SONAME ON)
-
 
 # The directory at which the Python import tree begins.
 set(MPACT_PYTHON_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/mpact")
