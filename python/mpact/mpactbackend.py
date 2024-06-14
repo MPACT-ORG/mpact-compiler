@@ -263,9 +263,12 @@ LOWERING_PIPELINE = (
             # TODO: the following pass currently contains no pattern. Will be
             # added as needed.
             "func.func(sparse-encoding-propagation)",
-            # MLIR Sparsifier mini-pipeline.
+            # MLIR Sparsifier mini-pipeline:
+            #   use the PyTorch assembler conventions
+            #   enable vectorization with VL=16 (more or less assumes AVX512 for float)
+            #   allow 32-bit index optimizations (unsafe for very large dimensions)
             "sparse-assembler{direct-out}",
-            "sparsification-and-bufferization",
+            "sparsification-and-bufferization{vl=16 enable-simd-index32}",
             "sparse-storage-specifier-to-llvm",
             # Buffer deallocation pass does not know how to handle realloc.
             "func.func(expand-realloc)",
@@ -297,7 +300,11 @@ LOWERING_PIPELINE = (
             "convert-bufferization-to-memref",
             "finalize-memref-to-llvm",
             "func.func(convert-arith-to-llvm)",
-            "convert-vector-to-llvm",
+            # Vector code (SIMD):
+            #   allow fp reductions to reassociate
+            #   allow 32-bit index optimizations (unsafe for very large dimensions)
+            #   assume we are running on a good ol' Intel X86 (disable for ARM/other)
+            "convert-vector-to-llvm{reassociate-fp-reductions force-32bit-vector-indices enable-x86vector}",
             "convert-func-to-llvm",
             "convert-cf-to-llvm",
             "convert-complex-to-llvm",
