@@ -3,9 +3,10 @@
 import torch
 
 from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
-from mpact.models.gcn import GraphConv
 
-net = GraphConv(4, 4)
+from mpact.models.gcn import graphconv44
+
+net = graphconv44()
 
 # Get random (but reproducible) matrices.
 torch.manual_seed(0)
