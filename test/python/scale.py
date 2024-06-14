@@ -35,5 +35,5 @@ print(res)
 # TODO: make this work, crashes in TORCH-MLIR
 #
 print("mpact")
-#res = mpact_jit(net, features)
-#print(res)
+# res = mpact_jit(net, features)
+# print(res)
