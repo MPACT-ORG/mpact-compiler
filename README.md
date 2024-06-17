@@ -24,6 +24,12 @@ cd mpact-compiler
 git submodule update --init --recursive --progress
 ```
 
+To always get updated submodules through `git pull`, set the following flag:
+
+```shell
+git config --global submodule.recurse true
+```
+
 All following commands assume you remain in the `mpact-compiler` directory.
 
 ### Setup Python virtual environment
