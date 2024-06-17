@@ -1,6 +1,7 @@
 import torch
 import argparse
 import numpy as np
+from mpact.models.kernels import *
 from mpact_benchmark.utils.benchmark_utils import benchmark, Backends
 
 
@@ -23,15 +24,7 @@ from mpact_benchmark.utils.benchmark_utils import benchmark, Backends
 )
 def matmul() -> torch.nn.Module:
     """Matrix multiplication."""
-
-    class Net(torch.nn.Module):
-        def __init__(self):
-            super().__init__()
-
-        def forward(self, x, y):
-            return torch.matmul(x, y)
-
-    return Net()
+    return MMNet()
 
 
 @benchmark(
@@ -53,15 +46,7 @@ def matmul() -> torch.nn.Module:
 )
 def matvec() -> torch.nn.Module:
     """Matrix-vector multiplication."""
-
-    class Net(torch.nn.Module):
-        def __init__(self):
-            super().__init__()
-
-        def forward(self, x, y):
-            return torch.mv(x, y)
-
-    return Net()
+    return MVNet()
 
 
 @benchmark(
@@ -85,15 +70,7 @@ def matvec() -> torch.nn.Module:
 )
 def add() -> torch.nn.Module:
     """Element-wise addition."""
-
-    class Net(torch.nn.Module):
-        def __init__(self):
-            super().__init__()
-
-        def forward(self, x, y):
-            return torch.add(x, y)
-
-    return Net()
+    return AddNet()
 
 
 @benchmark(
@@ -115,15 +92,7 @@ def add() -> torch.nn.Module:
 )
 def elt_mul() -> torch.nn.Module:
     """Element-wise addition."""
-
-    class Net(torch.nn.Module):
-        def __init__(self):
-            super().__init__()
-
-        def forward(self, x, y):
-            return torch.mul(x, y)
-
-    return Net()
+    return MulNet()
 
 
 @benchmark(
@@ -144,15 +113,7 @@ def elt_mul() -> torch.nn.Module:
 )
 def nop() -> torch.nn.Module:
     """Returns matrix unmodified (speed of light)."""
-
-    class Net(torch.nn.Module):
-        def __init__(self):
-            super().__init__()
-
-        def forward(self, x):
-            return x
-
-    return Net()
+    return SelfNet()
 
 
 @benchmark(
@@ -175,15 +136,67 @@ def nop() -> torch.nn.Module:
 )
 def sddmm() -> torch.nn.Module:
     """SDDMM: C = S ○ (A X B) Sampled dense-dense matrix-matrix multiplication."""
+    return SDDMMNet()
 
-    class Net(torch.nn.Module):
-        def __init__(self):
-            super().__init__()
 
-        def forward(self, x, y, z):
-            return torch.mul(x, torch.matmul(y, z))
+@benchmark(
+    [
+        {
+            "name": f"{fmt}_{shape}_{dtype.__name__}",
+            "shape": shape,
+            "formats": (fmt,),
+            "dtype": dtype,
+            # TODO: add mpact and torch inductor once they work.
+            "backends": [
+                b
+                for b in Backends
+                if b.value
+                in (
+                    Backends.TORCH_SPARSE_EAGER.value,
+                    Backends.TORCH_DENSE_EAGER.value,
+                )
+            ],
+            "drange": (1, 100),
+            "sparsity": [0, 0.5, 0.9, 0.99],
+        }
+        for shape in [([2**i, 2**i],) for i in range(5, 8)]
+        for fmt in ["dense"]
+        for dtype in [np.float64]
+    ]
+)
+def feature_scale() -> torch.nn.Module:
+    """Scales feature matrix in GNN."""
+    return FeatureScale()
 
-    return Net()
+
+@benchmark(
+    [
+        {
+            "name": f"{fmt}_{shape}_{dtype.__name__}",
+            "shape": shape,
+            "formats": (fmt,),
+            "dtype": dtype,
+            # TODO: add mpact and torch inductor once they work.
+            "backends": [
+                b
+                for b in Backends
+                if b.value
+                in (
+                    Backends.TORCH_SPARSE_EAGER.value,
+                    Backends.TORCH_DENSE_EAGER.value,
+                )
+            ],
+            "drange": (1, 100),
+            "sparsity": [0, 0.5, 0.9, 0.99],
+        }
+        for shape in [([2**i, 2**i],) for i in range(5, 8)]
+        for fmt in ["dense"]
+        for dtype in [np.float64]
+    ]
+)
+def normalization() -> torch.nn.Module:
+    """Normalizes adjacency matrix in GNN."""
+    return Normalization()
 
 
 if __name__ == "__main__":
@@ -201,6 +214,8 @@ if __name__ == "__main__":
         "matvec",
         "elt_mul",
         "sddmm",
+        "feature_scale",
+        "normalization",
     ]
     if arguments.benchmark_filter:
         benchmark_list = arguments.benchmark_filter.split(",")
