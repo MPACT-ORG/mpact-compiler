@@ -359,6 +359,12 @@ def sparse_metadata(a: torch.Tensor) -> SparsityMeta:
         raise RuntimeError(f"Unsupported sparse layout for {a}")
 
 
+def sparse_arg(args, i):
+    if isinstance(args[i], torch.fx.node.Node):
+        return args[i].meta.get("sparsity", None)
+    return None
+
+
 def sparse_export(
     f: Callable, args: Tuple[Any, ...], kwargs: Optional[Dict[str, Any]] = None
 ) -> torch.export.ExportedProgram:
@@ -402,8 +408,22 @@ def sparse_export(
             # TODO: use upstream _opname implementation when available
             opname = node.target._schema.name.split("::")[1]
             # Zero preserving elt-wise unary op.
-            if opname in {"abs", "neg", "relu", "sin", "mul"}:
-                node.meta["sparsity"] = node.args[0].meta.get("sparsity", None)
+            if opname in {"abs", "neg", "relu", "sin"}:
+                node.meta["sparsity"] = sparse_arg(node.args, 0)
+            # Some simplistic rules for preserving sparsity. Soon
+            # to be replaced by proper FX graph propagation.
+            elif opname in {"mul"}:
+                m0 = sparse_arg(node.args, 0)
+                m1 = sparse_arg(node.args, 1)
+                if m0 is not None:
+                    node.meta["sparsity"] = m0
+                elif m1 is not None:
+                    node.meta["sparsity"] = m1
+            elif opname in {"add", "mm"}:
+                m0 = sparse_arg(node.args, 0)
+                m1 = sparse_arg(node.args, 1)
+                if m0 is not None and m1 is not None:
+                    node.meta["sparsity"] = m0
             elif opname == "_to_sparse" or opname == "to_sparse":
                 dim = len(node.meta.get("val").shape)
                 node.meta["sparsity"] = SparsityMeta(
@@ -412,13 +432,13 @@ def sparse_export(
             # TODO: Uncomment this to hack sparsity into the network.
             # elif opname == "_to_dense" or opname == "to_dense":
             #     # hack (assumes we never really want the to_dense for now)
-            #     node.meta["sparsity"] = node.args[0].meta.get("sparsity", None)
-            elif opname == "select" and node.args[0].meta.get("sparsity", None):
+            #     node.meta["sparsity"] = sparse_arg(node.args, 0)
+            elif opname == "select" and sparse_arg(node.args, 0):
                 dim = len(node.meta.get("val").shape)
                 node.meta["sparsity"] = SparsityMeta(
                     torch.sparse_coo, 0, dim, 0, None, torch.int64, torch.int64
                 )
-            elif opname == "stack" and node.args[0][0].meta.get("sparsity", None):
+            elif opname == "stack" and sparse_arg(node.args[0], 0):
                 dim = len(node.meta.get("val").shape)
                 node.meta["sparsity"] = SparsityMeta(
                     torch.sparse_coo, 0, dim - 1, 1, None, torch.int64, torch.int64
