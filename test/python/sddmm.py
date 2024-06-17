@@ -7,6 +7,14 @@ from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
 
 from mpact.models.kernels import MMNet, SDDMMNet
 
+
+def print_sparse(res):
+    print(res[0])
+    print(res[1])
+    print(res[2])
+    print(res[3])
+
+
 mmnet = MMNet()
 sddmmnet = SDDMMNet()
 
@@ -54,7 +62,4 @@ print("mpact")
 dense = mpact_jit(mmnet, A, B)
 print(dense)
 res = mpact_jit(sddmmnet, S, A, B)
-print(res[0])
-print(res[1])
-print(res[2])
-print(res[3])
+print_sparse(res)
