@@ -43,7 +43,7 @@ source mpact_venv/bin/activate  # MUST BE REPEATED FOR EVERY SESSION
 
 Next, set the Python paths as follows; for shells not in the bash/sh family, see Note 2, [below](README.md#notes).
 ```shell
-export PYTHONPATH=`pwd`/build/tools/torch-mlir/python_packages/torch_mlir:pwd`/build/tools/mpact/python_packages/mpact
+export PYTHONPATH=`pwd`/build/tools/mpact/python_packages/mpact
 ```
 
 ### Install build requirements
