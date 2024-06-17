@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# The MPACT Compiler Benchmarks
+# The MPACT Compiler Python Benchmarks
 #-------------------------------------------------------------------------------
 
 declare_mlir_python_sources(MPACTBenchmarkPythonSources)
@@ -17,6 +17,10 @@ declare_mlir_python_sources(MPACTBenchmarkPythonSources.BenchmarkUtils
   SOURCES_GLOB
     utils/*.py
 )
+
+#-------------------------------------------------------------------------------
+# Python Modules
+#-------------------------------------------------------------------------------
 
 add_mlir_python_modules(MPACTBenchmarkPythonModules
   ROOT_PREFIX "${MPACT_PYTHON_PACKAGES_DIR}/mpact/mpact_benchmark"
