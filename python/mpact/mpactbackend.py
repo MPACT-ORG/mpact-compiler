@@ -1,9 +1,7 @@
 # Initialize mpact python extension.
 import mpact._mlir_libs._mpact
 
-import abc
 import ctypes
-from enum import Enum
 from io import StringIO
 import numpy as np
 import os
@@ -22,49 +20,12 @@ from mpact.ir import *
 from mpact.passmanager import *
 from mpact.runtime import *
 
-# One time set up of support library and optimization level.
+# One time set up of support library.
 SUPPORT_LIB = os.getenv("SUPPORT_LIB", default=None)
 SHARED_LIBS = [] if SUPPORT_LIB is None else [SUPPORT_LIB]
-OPT_LEVEL = int(os.getenv("OPT_LEVEL", default=2))
 
-# A type shared between the result of `LinalgOnTensorsBackend.compile` and the
-# input to `LinalgOnTensorsBackend.load`. Each backend will likely have a
-# different definition of this type.
-CompiledArtifact = TypeVar("CompiledArtifact")
-
-# A wrapper around a backend-specific loaded program representation
-# that uniformly translates the `x.method(...)` interface expected of
-# Torch modules into appropriate lower-level operations.
-Invoker = TypeVar("Invoker")
-
-
-class LinalgOnTensorsBackend(abc.ABC):
-    """The interface to an linalg-on-tensors backend.
-
-    Backends are recommended to raise meaningful exceptions in case of error,
-    ideally with easy reproduction instructions.
-    """
-
-    @abc.abstractmethod
-    def compile(self, module: Module) -> CompiledArtifact:
-        """Compile the provided MLIR module into a compiled artifact.
-
-        The module adheres to the linalg-on-tensors backend contract
-        (see the VerifyLinalgOnTensorsBackendContract pass).
-
-        The compiled artifact can be any type, but must be correctly
-        interpreted by the `load` method.
-        """
-
-    @abc.abstractmethod
-    def load(self, artifact: CompiledArtifact) -> Invoker:
-        """Load the compiled artifact into a uniformly invokable form.
-
-        The compiled artifact is the result of a previous call to `compile`.
-
-        See the description of `Invoker` for the requirements on the returned
-        type.
-        """
+# The result of MPACT compile() and input to load().
+MpactCompiledArtifact = TypeVar("MpactCompiledArtifact")
 
 
 def get_module_name_for_debug_dump(module):
@@ -208,8 +169,8 @@ def get_ctype_func(func_name):
 
 
 class MpactBackendInvoker:
-    def __init__(self, module):
-        self.ee = ExecutionEngine(module, opt_level=OPT_LEVEL, shared_libs=SHARED_LIBS)
+    def __init__(self, module, opt_level):
+        self.ee = ExecutionEngine(module, opt_level=opt_level, shared_libs=SHARED_LIBS)
         self.result = None
 
         return_funcs = get_return_funcs(module)
@@ -264,9 +225,12 @@ LOWERING_PIPELINE = (
             # TODO: the following pass currently contains no pattern. Will be
             # added as needed.
             "func.func(sparse-encoding-propagation)",
-            # MLIR Sparsifier mini-pipeline.
+            # MLIR Sparsifier mini-pipeline:
+            #   use the PyTorch assembler conventions
+            #   enable vectorization with VL=16 (more or less assumes AVX512 for float)
+            #   allow 32-bit index optimizations (unsafe for very large dimensions)
             "sparse-assembler{direct-out}",
-            "sparsification-and-bufferization",
+            "sparsification-and-bufferization{vl=16 enable-simd-index32}",
             "sparse-storage-specifier-to-llvm",
             # Buffer deallocation pass does not know how to handle realloc.
             "func.func(expand-realloc)",
@@ -275,14 +239,9 @@ LOWERING_PIPELINE = (
             "func.func(refback-generalize-tensor-pad)",
             "func.func(refback-generalize-tensor-concat)",
             # Bufferize.
-            "func.func(scf-bufferize)",
             "func.func(tm-tensor-bufferize)",
-            "func.func(empty-tensor-to-alloc-tensor)",
-            "func.func(linalg-bufferize)",
-            "func-bufferize",
-            "arith-bufferize",
+            "one-shot-bufferize{copy-before-write bufferize-function-boundaries function-boundary-type-conversion=identity-layout-map}",
             "refback-mlprogram-bufferize",
-            "func.func(tensor-bufferize)",
             "func.func(finalizing-bufferize)",
             "func.func(buffer-deallocation)",
             # Inline sparse helper methods where useful (but after dealloc).
@@ -303,7 +262,11 @@ LOWERING_PIPELINE = (
             "convert-bufferization-to-memref",
             "finalize-memref-to-llvm",
             "func.func(convert-arith-to-llvm)",
-            "convert-vector-to-llvm",
+            # Vector code (SIMD):
+            #   allow fp reductions to reassociate
+            #   allow 32-bit index optimizations (unsafe for very large dimensions)
+            #   assume we are running on a good ol' Intel X86 (disable for ARM/other)
+            "convert-vector-to-llvm{reassociate-fp-reductions force-32bit-vector-indices enable-x86vector}",
             "convert-func-to-llvm",
             "convert-cf-to-llvm",
             "convert-complex-to-llvm",
@@ -314,13 +277,13 @@ LOWERING_PIPELINE = (
 )
 
 
-class MpactBackendLinalgOnTensorsBackend(LinalgOnTensorsBackend):
-    """Main entry-point for the MPACT backend."""
+class MpactBackendCompiler:
+    """Main entry-point for the MPACT backend compiler."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, opt_level):
+        self.opt_level = opt_level
 
-    def compile(self, imported_module: Module):
+    def compile(self, imported_module: Module) -> MpactCompiledArtifact:
         """Compiles an imported module, with a flat list of functions.
         The module is expected to be in linalg-on-tensors + scalar code form.
 
@@ -332,14 +295,20 @@ class MpactBackendLinalgOnTensorsBackend(LinalgOnTensorsBackend):
         run_pipeline_with_repro_report(
             imported_module,
             LOWERING_PIPELINE,
-            "Lowering Linalg-on-Tensors IR to LLVM with MpactBackend",
+            "Lowering Linalg-on-Tensors IR to LLVM with MpactBackendCompiler",
             enable_ir_printing=False,
         )
         return imported_module
 
-    def load(self, module) -> MpactBackendInvoker:
-        """Loads a compiled artifact into the runtime."""
-        return MpactBackendInvoker(module)
+    def load(self, module: MpactCompiledArtifact) -> MpactBackendInvoker:
+        """Loads a compiled artifact into the runtime.
+
+        Args:
+          module: The result of a previous call to `compile`.
+        Returns:
+          MPactInvoker to call a compiled method (viz `invoker.foo(...)`).
+        """
+        return MpactBackendInvoker(module, self.opt_level)
 
 
 def sparse_metadata(a: torch.Tensor) -> SparsityMeta:
@@ -390,6 +359,12 @@ def sparse_metadata(a: torch.Tensor) -> SparsityMeta:
         raise RuntimeError(f"Unsupported sparse layout for {a}")
 
 
+def sparse_arg(args, i):
+    if isinstance(args[i], torch.fx.node.Node):
+        return args[i].meta.get("sparsity", None)
+    return None
+
+
 def sparse_export(
     f: Callable, args: Tuple[Any, ...], kwargs: Optional[Dict[str, Any]] = None
 ) -> torch.export.ExportedProgram:
@@ -434,22 +409,36 @@ def sparse_export(
             opname = node.target._schema.name.split("::")[1]
             # Zero preserving elt-wise unary op.
             if opname in {"abs", "neg", "relu", "sin"}:
-                node.meta["sparsity"] = node.args[0].meta.get("sparsity", None)
-            elif opname == "_to_sparse":
+                node.meta["sparsity"] = sparse_arg(node.args, 0)
+            # Some simplistic rules for preserving sparsity. Soon
+            # to be replaced by proper FX graph propagation.
+            elif opname in {"mul"}:
+                m0 = sparse_arg(node.args, 0)
+                m1 = sparse_arg(node.args, 1)
+                if m0 is not None:
+                    node.meta["sparsity"] = m0
+                elif m1 is not None:
+                    node.meta["sparsity"] = m1
+            elif opname in {"add", "mm"}:
+                m0 = sparse_arg(node.args, 0)
+                m1 = sparse_arg(node.args, 1)
+                if m0 is not None and m1 is not None:
+                    node.meta["sparsity"] = m0
+            elif opname == "_to_sparse" or opname == "to_sparse":
                 dim = len(node.meta.get("val").shape)
                 node.meta["sparsity"] = SparsityMeta(
                     torch.sparse_coo, 0, dim, 0, None, torch.int64, torch.int64
                 )
             # TODO: Uncomment this to hack sparsity into the network.
-            # elif opname == "_to_dense":
+            # elif opname == "_to_dense" or opname == "to_dense":
             #     # hack (assumes we never really want the to_dense for now)
-            #     node.meta["sparsity"] = node.args[0].meta.get("sparsity", None)
-            elif opname == "select" and node.args[0].meta.get("sparsity", None):
+            #     node.meta["sparsity"] = sparse_arg(node.args, 0)
+            elif opname == "select" and sparse_arg(node.args, 0):
                 dim = len(node.meta.get("val").shape)
                 node.meta["sparsity"] = SparsityMeta(
                     torch.sparse_coo, 0, dim, 0, None, torch.int64, torch.int64
                 )
-            elif opname == "stack" and node.args[0][0].meta.get("sparsity", None):
+            elif opname == "stack" and sparse_arg(node.args[0], 0):
                 dim = len(node.meta.get("val").shape)
                 node.meta["sparsity"] = SparsityMeta(
                     torch.sparse_coo, 0, dim - 1, 1, None, torch.int64, torch.int64
@@ -467,7 +456,7 @@ def export_and_import(f, *args, **kwargs):
     return fx_importer.module
 
 
-def mpact_jit_compile(f, *args, **kwargs):
+def mpact_jit_compile(f, *args, opt_level=2, **kwargs):
     """This method compiles the given callable using the MPACT backend."""
     # Import module and lower into Linalg IR.
     module = export_and_import(f, *args, **kwargs)
@@ -481,8 +470,8 @@ def mpact_jit_compile(f, *args, **kwargs):
         "Lowering TorchFX IR -> Linalg IR",
         enable_ir_printing=False,
     )
-    # Compile with MPACT backend.
-    backend = MpactBackendLinalgOnTensorsBackend()
+    # Compile with MPACT backend compiler.
+    backend = MpactBackendCompiler(opt_level=opt_level)
     compiled = backend.compile(module)
     invoker = backend.load(compiled)
     return invoker, f
@@ -491,8 +480,8 @@ def mpact_jit_compile(f, *args, **kwargs):
 def mpact_jit_run(invoker, f, *args, **kwargs):
     """This method runs the given callable using the given MPACT invoker."""
     xargs = []
-    # Prepare the buffer parameters (assume all dense).
-    # TODO: filters out scalar arguments, anything else?
+    # Prepare all the named buffer parameters (assume all dense).
+    # All scalar arguments are filtered out since they appear inline.
     params = dict(f.named_buffers(remove_duplicate=True))
     params_flat, params_spec = torch.utils._pytree.tree_flatten(params)
     for p in params_flat:
@@ -527,6 +516,7 @@ def mpact_jit_run(invoker, f, *args, **kwargs):
     return invoker.main(*xargs)
 
 
+# Convenience wrapper.
 def mpact_jit(f, *args, **kwargs):
     """This method compiles and runs the given callable using the MPACT backend."""
     invoker, fn = mpact_jit_compile(f, *args, **kwargs)

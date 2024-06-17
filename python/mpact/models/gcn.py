@@ -17,3 +17,7 @@ class GraphConv(torch.nn.Module):
         # Add bias.
         output = output + self.bias
         return output
+
+
+def graphconv44():
+    return GraphConv(input_dim=4, output_dim=4)
