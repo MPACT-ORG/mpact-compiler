@@ -146,7 +146,7 @@ def sddmm() -> torch.nn.Module:
             "shape": shape,
             "formats": (fmt,),
             "dtype": dtype,
-            # TODO: add mpact and torch inductor once it works.
+            # TODO: add mpact and torch inductor once they work.
             "backends": [
                 b
                 for b in Backends
@@ -176,7 +176,7 @@ def feature_scale() -> torch.nn.Module:
             "shape": shape,
             "formats": (fmt,),
             "dtype": dtype,
-            # TODO: add mpact and torch inductor once it works.
+            # TODO: add mpact and torch inductor once they work.
             "backends": [
                 b
                 for b in Backends
