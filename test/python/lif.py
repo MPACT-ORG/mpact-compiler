@@ -4,9 +4,9 @@ import torch
 
 from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
 
-from mpact.models.lif import Block
+from mpact.models.lif import LIFSumOfSq
 
-net = Block()
+net = LIFSumOfSq()
 
 # Get a random (but reproducible) input, so that a
 # general sparse tensor appears after LIF.
