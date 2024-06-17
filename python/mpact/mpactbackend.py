@@ -402,7 +402,7 @@ def sparse_export(
             # TODO: use upstream _opname implementation when available
             opname = node.target._schema.name.split("::")[1]
             # Zero preserving elt-wise unary op.
-            if opname in {"abs", "neg", "relu", "sin"}:
+            if opname in {"abs", "neg", "relu", "sin", "mul"}:
                 node.meta["sparsity"] = node.args[0].meta.get("sparsity", None)
             elif opname == "_to_sparse" or opname == "to_sparse":
                 dim = len(node.meta.get("val").shape)
