@@ -46,9 +46,9 @@ class tdLayer(torch.nn.Module):
         return out
 
 
-class Block(torch.nn.Module):
+class LIFSumOfSq(torch.nn.Module):
     def __init__(self):
-        super(Block, self).__init__()
+        super(LIFSumOfSq, self).__init__()
         self.spike = LIF()
         self.layer = tdLayer(sqSum)
 

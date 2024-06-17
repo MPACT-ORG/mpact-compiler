@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from mpact.models.lif import Block
+from mpact.models.lif import LIFSumOfSq
 from mpact_benchmark.utils.benchmark_utils import benchmark, Backends
 
 
@@ -35,10 +35,10 @@ from mpact_benchmark.utils.benchmark_utils import benchmark, Backends
         for dtype in [np.float64]
     ]
 )
-def SNN() -> torch.nn.Module:
-    """Spiking Neural Network."""
-    return Block()
+def LifSumOfSq() -> torch.nn.Module:
+    """LIF feeding into sum of squares."""
+    return LIFSumOfSq()
 
 
 if __name__ == "__main__":
-    SNN()
+    LifSumOfSq()
