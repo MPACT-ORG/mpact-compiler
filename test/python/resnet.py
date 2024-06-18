@@ -5,9 +5,9 @@ import numpy as np
 
 from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
 
-from mpact.models.resnet import resnet20
+from mpact.models.resnet import resnet_20
 
-resnet = resnet20()
+resnet = resnet_20()
 resnet.eval()  # Switch to inference.
 
 # Get a random input.

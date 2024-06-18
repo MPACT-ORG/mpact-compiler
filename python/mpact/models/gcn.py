@@ -39,9 +39,9 @@ class GCN(torch.nn.Module):
         return F.log_softmax(x, dim=1)
 
 
-def graphconv4_4():
+def graphconv_4_4():
     return GraphConv(input_dim=4, output_dim=4)
 
 
-def gcn4_16_4():
+def gcn_4_16_4():
     return GCN(input_dim=4, hidden_dim=16, output_dim=4)

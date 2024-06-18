@@ -83,5 +83,5 @@ class GAT(torch.nn.Module):
         return F.log_softmax(x, dim=1)
 
 
-def gat4_64_8_3():
+def gat_4_64_8_3():
     return GAT(in_features=4, n_hidden=64, n_heads=8, num_classes=3)

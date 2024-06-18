@@ -5,9 +5,9 @@ import numpy as np
 
 from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
 
-from mpact.models.gat import gat4_64_8_3
+from mpact.models.gat import gat_4_64_8_3
 
-net = gat4_64_8_3()
+net = gat_4_64_8_3()
 net.eval()  # Switch to inference.
 
 # Sparse input.

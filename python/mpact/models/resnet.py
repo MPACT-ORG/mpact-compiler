@@ -251,5 +251,5 @@ class ResNety(torch.nn.Module):
         return self._forward_impl(x)
 
 
-def resnet20():
+def resnet_20():
     return ResNety(block=BasicBlock, layers=[2, 2, 2], num_classes=10)
