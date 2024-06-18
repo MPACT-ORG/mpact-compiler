@@ -83,6 +83,12 @@ Run the following to ensure the MPACT compiler builds and runs correctly.
 cmake --build build --target check-mpact
 ```
 
+And the following to run all benchmarks
+(see [Benchmarks](benchmark/README.md) for more details).
+
+```shell
+cmake --build build --target benchmark-mpact
+```
 
 ## Notes
 
