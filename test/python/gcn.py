@@ -4,9 +4,10 @@ import torch
 
 from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
 
-from mpact.models.gcn import graphconv44
+from mpact.models.gcn import graphconv44, gcn4164
 
 net = graphconv44()
+net.eval()  # switch to inference
 
 # Get random (but reproducible) matrices.
 torch.manual_seed(0)
@@ -59,4 +60,35 @@ with torch.no_grad():
     invoker, fn = mpact_jit_compile(net, inp, adj_mat, opt_level=3)
     print("mpact run")
     res = mpact_jit_run(invoker, fn, inp, adj_mat)
+    print(res)
+
+net = gcn4164()
+net.eval()  # switch to inference
+
+
+# Sparse input.
+idx = torch.tensor([[0, 0, 1, 2], [0, 2, 3, 1]], dtype=torch.int64)
+val = torch.tensor([14.0, 3.0, -8.0, 11.0], dtype=torch.float32)
+S = torch.sparse_coo_tensor(idx, val, size=[4, 4])
+
+#
+# CHECK: pytorch gcn
+# CHECK:   tensor({{\[}}[-1.3863, -1.3863, -1.3863, -1.3863],
+# CHECK:                [-1.3863, -1.3863, -1.3863, -1.3863],
+# CHECK:                [-1.3863, -1.3863, -1.3863, -1.3863],
+# CHECK:                [-1.3863, -1.3863, -1.3863, -1.3863]])
+# CHECK: mpact gcn
+# CHECK:   {{\[}}[-1.3862944 -1.3862944 -1.3862944 -1.3862944]
+# CHECK:         [-1.3862944 -1.3862944 -1.3862944 -1.3862944]
+# CHECK:         [-1.3862944 -1.3862944 -1.3862944 -1.3862944]
+# CHECK:         [-1.3862944 -1.3862944 -1.3862944 -1.3862944]{{\]}}
+#
+with torch.no_grad():
+    # Run it with PyTorch.
+    print("pytorch gcn")
+    res = net(S, adj_mat)
+    print(res)
+
+    print("mpact gcn")
+    res = mpact_jit(net, S, adj_mat)
     print(res)

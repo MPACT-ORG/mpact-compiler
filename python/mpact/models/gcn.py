@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 
 
 class GraphConv(torch.nn.Module):
@@ -19,5 +20,29 @@ class GraphConv(torch.nn.Module):
         return output
 
 
+class GCN(torch.nn.Module):
+    """
+    Graph Convolutional Network (GCN) inspired by <https://arxiv.org/pdf/1609.02907.pdf>.
+    """
+
+    def __init__(self, input_dim, hidden_dim, output_dim, dropout_p=0.1):
+        super(GCN, self).__init__()
+        self.gc1 = GraphConv(input_dim, hidden_dim)
+        self.gc2 = GraphConv(hidden_dim, output_dim)
+        self.dropout = torch.nn.Dropout(dropout_p)
+
+    def forward(self, input_tensor, adj_mat):
+        x = self.gc1(input_tensor, adj_mat)
+        x = F.relu(x)
+        x = self.dropout(x)
+        x = self.gc2(x, adj_mat)
+        print(x)
+        return F.log_softmax(x, dim=1)
+
+
 def graphconv44():
     return GraphConv(input_dim=4, output_dim=4)
+
+
+def gcn4164():
+    return GCN(input_dim=4, hidden_dim=16, output_dim=4)
