@@ -86,7 +86,7 @@ cmake --build build --target check-mpact
 
 ## Notes
 
-1. Shells other than bash/sh/etc. require a different `activate` script, as shown.  Because the python environment has to be set up for every session, we recommend putting it in your .*sh startup file.
+1. Shells other than bash/sh/etc. require a different `activate` script, as shown. Because the python environment has to be set up for every session, we recommend putting it in your .*sh startup file.
    - For csh/tcsh/etc.:
      ```shell
          source `pwd`/mpact_venv/bin/activate.csh
