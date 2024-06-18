@@ -34,7 +34,7 @@ NOTE: All following commands assume you remain in the `mpact-compiler` directory
 
 ### Setup Python virtual environment
 
-The following commands initialize a virtual environment under bash/sh/etc.  For other shells, see Note 1, [below](README.md#notes).
+The following commands initialize a virtual environment under bash/sh/etc. For other shells, see Note 1, [below](README.md#notes).
 
 ```shell
 python3.11 -m venv mpact_venv  # one time set up
