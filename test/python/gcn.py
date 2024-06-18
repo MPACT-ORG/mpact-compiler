@@ -4,9 +4,9 @@ import torch
 
 from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
 
-from mpact.models.gcn import graphconv44, gcn4164
+from mpact.models.gcn import graphconv_4_4, gcn_4_16_4
 
-net = graphconv44()
+net = graphconv_4_4()
 net.eval()  # Switch to inference.
 
 # Get random (but reproducible) matrices.
@@ -62,7 +62,7 @@ with torch.no_grad():
     res = mpact_jit_run(invoker, fn, inp, adj_mat)
     print(res)
 
-net = gcn4164()
+net = gcn_4_16_4()
 net.eval()  # Switch to inference.
 
 
