@@ -7,7 +7,7 @@ from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
 from mpact.models.gcn import graphconv44, gcn4164
 
 net = graphconv44()
-net.eval()  # switch to inference
+net.eval()  # Switch to inference.
 
 # Get random (but reproducible) matrices.
 torch.manual_seed(0)
@@ -63,7 +63,7 @@ with torch.no_grad():
     print(res)
 
 net = gcn4164()
-net.eval()  # switch to inference
+net.eval()  # Switch to inference.
 
 
 # Sparse input.

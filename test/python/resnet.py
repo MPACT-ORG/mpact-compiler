@@ -8,7 +8,7 @@ from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
 from mpact.models.resnet import resnet20
 
 resnet = resnet20()
-resnet.eval()  # switch to inference
+resnet.eval()  # Switch to inference.
 
 # Get a random input.
 #   B x RGB x H x W
