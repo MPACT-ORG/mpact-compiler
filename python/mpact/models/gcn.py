@@ -36,7 +36,6 @@ class GCN(torch.nn.Module):
         x = F.relu(x)
         x = self.dropout(x)
         x = self.gc2(x, adj_mat)
-        print(x)
         return F.log_softmax(x, dim=1)
 
 
