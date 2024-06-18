@@ -3,9 +3,9 @@
 ## Introduction
 
 The MPACT project's main objective is to dramatically reduce the effort
-required to create highly optimizing HPC and ML compilers for a large class
-of architectures using LLVM and MLIR.  We do this by providing a
-declarative language-based mechanism for collecting and expressing
+required to create highly optimizing HPC and ML compilers for a large
+class of architectures using LLVM and MLIR. We do this by providing
+a declarative language-based mechanism for collecting and expressing
 critical aspects of a target architecture in a way that can be reasoned
 about and leveraged by all passes in both MLIR and LLVM.
 
@@ -37,7 +37,7 @@ NOTE: All following commands assume you remain in the `mpact-compiler` directory
 The following commands initialize a virtual environment under bash/sh/etc. For other shells, see Note 1, [below](README.md#notes).
 
 ```shell
-python3.11 -m venv mpact_venv  # one time set up
+python3.11 -m venv mpact_venv   # one time set up
 source mpact_venv/bin/activate  # MUST BE REPEATED FOR EVERY SESSION
 ```
 
