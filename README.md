@@ -30,26 +30,25 @@ To always get updated submodules through `git pull`, set the following flag:
 git config --global submodule.recurse true
 ```
 
-All following commands assume you remain in the `mpact-compiler` directory.
+NOTE: All following commands assume you remain in the `mpact-compiler` directory.
 
 ### Setup Python virtual environment
 
-The following commands initialize a virtual environment.
+The following commands initialize a virtual environment under bash/sh/etc. For other shells, see Note 1, [below](README.md#notes).
 
 ```shell
 python3.11 -m venv mpact_venv  # one time set up
-source mpact_venv/bin/activate # for each session
+source mpact_venv/bin/activate  # MUST BE REPEATED FOR EVERY SESSION
 ```
 
-Also make sure to set the Python paths as follows.
-
+Next, set the Python paths as follows; for shells not in the bash/sh family, see Note 2, [below](README.md#notes).
 ```shell
 export PYTHONPATH=`pwd`/build/tools/mpact/python_packages/mpact
 ```
 
 ### Install build requirements
 
-Note that currently we rely on `torch-mlir` requirements defined in the
+Note that currently we rely on `torch-mlir` requirements defined in that
 submodule to ensure all the build requirements are consistent.
 
 ```shell
@@ -57,6 +56,7 @@ python -m pip install --upgrade pip
 python -m pip install -r externals/torch-mlir/requirements.txt
 python -m pip install -r externals/torch-mlir/torchvision-requirements.txt
 ```
+For shells not in the bash/sh family, see Note 3, [below](README.md#notes).
 
 ### Building the MPACT compiler in-tree
 
@@ -81,4 +81,26 @@ Run the following to ensure the MPACT compiler builds and runs correctly.
 
 ```shell
 cmake --build build --target check-mpact
+```
+
+
+## Notes
+
+1. Shells other than bash/sh/etc. require a different `activate` script, as shown. Because the python environment has to be set up for every session, we recommend putting it in your .*sh startup file.
+   - For csh/tcsh/etc.:
+     ```shell
+         source `pwd`/mpact_venv/bin/activate.csh
+     ```
+   - For fish/etc.:
+     ```shell
+         source <path_to_mpact_compiler>/mpact_venv/bin/activate.fish
+     ```
+2. Shells other than bash/sh/etc. set their environment variables differently:
+   - For csh/tcsh/etc.:
+   ```shell
+       setenv PYTHONPATH `pwd`/build/tools/torch-mlir/python_packages/torch_mlir:`pwd`/build/tools/mpact/python_packages/mpact
+   ```
+3. If using csh/tcsh/etc., run the following command before trying to build the compiler:
+```shell
+rehash
 ```
