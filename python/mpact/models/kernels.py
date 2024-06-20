@@ -31,6 +31,11 @@ class SDDMMNet(torch.nn.Module):
         return torch.mul(x, torch.mm(y, z))
 
 
+class SqSum(torch.nn.Module):
+    def forward(self, x):
+        return (x * x).sum()
+
+
 class FeatureScale(torch.nn.Module):
     def forward(self, F):
         sum_vector = torch.sum(F, dim=1)
