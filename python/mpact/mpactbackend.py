@@ -214,7 +214,7 @@ class MpactBackendInvoker:
         return invoke
 
 
-LOWERING_PIPELINE = (
+LOWERING_PIPELINE_TEMPLATE = (
     "builtin.module("
     + ",".join(
         [
@@ -229,8 +229,8 @@ LOWERING_PIPELINE = (
             #   use the PyTorch assembler conventions
             #   enable vectorization with VL=16 (more or less assumes AVX512 for float)
             #   allow 32-bit index optimizations (unsafe for very large dimensions)
-            "sparse-assembler{direct-out}",
-            "sparsification-and-bufferization{vl=16 enable-simd-index32}",
+            "sparse-assembler{{direct-out}}",
+            "sparsification-and-bufferization{{{sp_options}}}",
             "sparse-storage-specifier-to-llvm",
             # Buffer deallocation pass does not know how to handle realloc.
             "func.func(expand-realloc)",
@@ -240,7 +240,7 @@ LOWERING_PIPELINE = (
             "func.func(refback-generalize-tensor-concat)",
             # Bufferize.
             "func.func(tm-tensor-bufferize)",
-            "one-shot-bufferize{copy-before-write bufferize-function-boundaries function-boundary-type-conversion=identity-layout-map}",
+            "one-shot-bufferize{{copy-before-write bufferize-function-boundaries function-boundary-type-conversion=identity-layout-map}}",
             "refback-mlprogram-bufferize",
             "func.func(finalizing-bufferize)",
             "func.func(buffer-deallocation)",
@@ -266,7 +266,7 @@ LOWERING_PIPELINE = (
             #   allow fp reductions to reassociate
             #   allow 32-bit index optimizations (unsafe for very large dimensions)
             #   assume we are running on a good ol' Intel X86 (disable for ARM/other)
-            "convert-vector-to-llvm{reassociate-fp-reductions force-32bit-vector-indices enable-x86vector}",
+            "convert-vector-to-llvm{{reassociate-fp-reductions force-32bit-vector-indices enable-x86vector}}",
             "convert-func-to-llvm",
             "convert-cf-to-llvm",
             "convert-complex-to-llvm",
@@ -280,10 +280,17 @@ LOWERING_PIPELINE = (
 class MpactBackendCompiler:
     """Main entry-point for the MPACT backend compiler."""
 
-    def __init__(self, opt_level):
+    def __init__(self, opt_level, use_sp_it):
         self.opt_level = opt_level
+        self.use_sp_it = use_sp_it
 
     def compile(self, imported_module: Module) -> MpactCompiledArtifact:
+        sp_options = (
+            "sparse-emit-strategy=sparse-iterator"
+            if self.use_sp_it
+            else "vl=16 enable-simd-index32"
+        )
+        LOWERING_PIPELINE = LOWERING_PIPELINE_TEMPLATE.format(sp_options=sp_options)
         """Compiles an imported module, with a flat list of functions.
         The module is expected to be in linalg-on-tensors + scalar code form.
 
@@ -456,7 +463,7 @@ def export_and_import(f, *args, **kwargs):
     return fx_importer.module
 
 
-def mpact_jit_compile(f, *args, opt_level=2, **kwargs):
+def mpact_jit_compile(f, *args, opt_level=2, use_sp_it=False, **kwargs):
     """This method compiles the given callable using the MPACT backend."""
     # Import module and lower into Linalg IR.
     module = export_and_import(f, *args, **kwargs)
@@ -471,7 +478,7 @@ def mpact_jit_compile(f, *args, opt_level=2, **kwargs):
         enable_ir_printing=False,
     )
     # Compile with MPACT backend compiler.
-    backend = MpactBackendCompiler(opt_level=opt_level)
+    backend = MpactBackendCompiler(opt_level=opt_level, use_sp_it=use_sp_it)
     compiled = backend.compile(module)
     invoker = backend.load(compiled)
     return invoker, f
