@@ -77,6 +77,12 @@ cmake -GNinja -Bbuild \
   externals/torch-mlir/externals/llvm-project/llvm
 ```
 
+To speed up the build process, you can set up [ccache](https://ccache.dev/download.html) and add the following flags to the command above:
+
+```shell
+-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+```
+
 Run the following to ensure the MPACT compiler builds and runs correctly.
 
 ```shell
