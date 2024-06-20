@@ -104,7 +104,7 @@ cmake --build build --target benchmark-mpact
 2. Shells other than bash/sh/etc. set their environment variables differently:
    - For csh/tcsh/etc.:
    ```shell
-       setenv PYTHONPATH `pwd`/build/tools/torch-mlir/python_packages/torch_mlir:`pwd`/build/tools/mpact/python_packages/mpact
+       setenv PYTHONPATH `pwd`/build/tools/mpact/python_packages/mpact
    ```
 3. If using csh/tcsh/etc., run the following command before trying to build the compiler:
 ```shell
