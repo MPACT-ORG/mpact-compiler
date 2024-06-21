@@ -89,6 +89,7 @@ with torch.no_grad():
     res = net(S, adj_mat)
     print(res)
 
+    # Run it with MPACT.
     print("mpact gcn")
     res = mpact_jit(net, S, adj_mat)
     print(res)
