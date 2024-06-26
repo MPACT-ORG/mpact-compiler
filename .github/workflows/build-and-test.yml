@@ -1,0 +1,66 @@
+name: Build and test
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  # Use PR number as key for a pull request or the commit hash otherwise. This cancels
+  # queued and in-progress runs for the same PR (presubmit) or commit
+  # (postsubmit).
+  group: ci-build-test-cpp-linux-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CACHE_DIR: ${{ github.workspace }}/.ccache    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Python Version
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11 # Install the python version needed
+
+    - name: Set PYTHONPATH
+      run: export PYTHONPATH=build/tools/mpact/python_packages/mpact
+      shell: bash
+
+    - name: Set up ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+
+    - name: Install requirements
+      run: |
+           export CCACHE_DIR=${{ env.CACHE_DIR }}
+           python -m pip install --upgrade pip
+           python -m pip install -r externals/torch-mlir/requirements.txt
+           python -m pip install -r externals/torch-mlir/torchvision-requirements.txt
+   
+    - name: Create build directory
+      run: mkdir build
+
+    - name: Configure CMake
+      run: >
+        cmake -GNinja -Bbuild
+        -DCMAKE_BUILD_TYPE=Release
+        -DLLVM_ENABLE_PROJECTS=mlir
+        -DLLVM_ENABLE_ASSERTIONS=ON
+        -DLLVM_EXTERNAL_PROJECTS="torch-mlir;mpact"
+        -DLLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR="${PWD}/externals/torch-mlir"
+        -DLLVM_EXTERNAL_MPACT_SOURCE_DIR="${PWD}"
+        -DLLVM_TARGETS_TO_BUILD=host
+        -DMLIR_ENABLE_BINDINGS_PYTHON=ON
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_CXX_COMPILER=clang++
+        "externals/torch-mlir/externals/llvm-project/llvm"
+
+    - name: Build
+      run: cmake --build build --target check-mpact
+

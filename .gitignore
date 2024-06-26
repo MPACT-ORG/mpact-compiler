@@ -1,0 +1,7 @@
+*_venv/
+__pycache__
+/build*/
+
+# lsp files
+.cache/
+compile_commands.json
