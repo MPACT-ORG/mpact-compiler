@@ -136,12 +136,14 @@ def run_benchmark(
                         output.append(
                             torch.sparse_csr_tensor(*sp_out, size=dense_out.shape)
                         )
-                        # Check MPACT and torch eager both return sparse csr output.
+                        # Check MPACT and torch eager both return sparse csr output
+                        # only when torch sparse eager has been run.
                         if output_type:
                             assert output_type == torch.sparse_csr
                     else:
                         output.append(torch.from_numpy(sp_out))
-                        # Check MPACT and torch eager both return dense output.
+                        # Check MPACT and torch eager both return dense output
+                        # only when torch sparse eager has been run.
                         if output_type:
                             assert output_type == torch.strided
                     invoker, f = mpact_jit_compile(torch_net, *sparse_inputs)
