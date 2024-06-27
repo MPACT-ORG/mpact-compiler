@@ -1,0 +1,59 @@
+name: Regression benchmark
+
+on:
+  workflow_run:
+    workflows: [Build and test]
+    types: [completed]
+    # branches: [main]
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  benchmark:
+    name: Performance regression check
+    runs-on: ubuntu-latest
+    env:
+      CACHE_DIR: ${{ github.workspace }}/.ccache    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Python Version
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11 # Install the python version needed
+
+    - name: Set PYTHONPATH
+      run: export PYTHONPATH=build/tools/mpact/python_packages/mpact
+      shell: bash
+
+    - name: Build
+      run: cmake --build build --target build-benchmark-mpact
+
+    - name: Install requirements
+      run: |
+           export CCACHE_DIR=${{ env.CACHE_DIR }}
+           python -m pip install --upgrade pip
+           python -m pip install pytest pytest-benchmark
+
+    - name: Run benchmark
+      run: pytest benchmark/python/benchmarks/regression_benchmark.py --benchmark-json output.json
+
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        tool: 'pytest'
+        output-file-path: output.json
+        fail-on-alert: true
+        # GitHub API token to make a commit comment
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        # Enable alert commit comment
+        comment-on-alert: true
+        # Mention @rhysd in the commit comment
+        alert-comment-cc-users: '@yinying-lisa-li'
+        # Push and deploy GitHub pages branch automatically
+        auto-push: true
