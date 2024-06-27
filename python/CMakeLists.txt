@@ -52,9 +52,10 @@ set(_source_components
   MLIRPythonExtension.Core
   MLIRPythonExtension.RegisterEverything
 
-  # We need the FxImporter from torch-mlir
+  # We need various modules form torch-mlir.
   TorchMLIRPythonSources.Importers
   TorchMLIRPythonSources.Dialects
+  TorchMLIRPythonSources.PublicAPI
   TorchMLIRPythonExtensions
 
   MPACTPythonSources
