@@ -14,38 +14,50 @@ sparse_tensor1 = dense_tensor1.to_sparse_csr()
 sparse_tensor2 = dense_tensor2.to_sparse_csr()
 sparse_tensor3 = dense_tensor3.to_sparse_csr()
 
+
 def test_mv_dense(benchmark):
     benchmark(MVNet(), dense_tensor1, dense_vector)
+
 
 def test_mm_dense(benchmark):
     benchmark(MMNet(), dense_tensor1, dense_tensor2)
 
+
 def test_add_dense(benchmark):
     benchmark(AddNet(), dense_tensor1, dense_tensor2)
+
 
 def test_mul_dense(benchmark):
     benchmark(MulNet(), dense_tensor1, dense_tensor2)
 
+
 def test_nop_dense(benchmark):
     benchmark(SelfNet(), dense_tensor1)
+
 
 def test_sddmm_dense(benchmark):
     benchmark(SDDMMNet(), dense_tensor1, dense_tensor2, dense_tensor3)
 
+
 def test_mv_sparse(benchmark):
     benchmark(MVNet(), sparse_tensor1, dense_vector)
+
 
 def test_mm_sparse(benchmark):
     benchmark(MMNet(), sparse_tensor1, sparse_tensor2)
 
+
 def test_add_sparse(benchmark):
     benchmark(AddNet(), sparse_tensor1, sparse_tensor2)
+
 
 def test_mul_sparse(benchmark):
     benchmark(MulNet(), sparse_tensor1, sparse_tensor2)
 
+
 def test_nop_sparse(benchmark):
     benchmark(SelfNet(), sparse_tensor1)
+
 
 def test_sddmm_sparse(benchmark):
     benchmark(SDDMMNet(), sparse_tensor1, dense_tensor2, dense_tensor3)
