@@ -20,7 +20,8 @@ jobs:
     name: Performance regression check
     runs-on: ubuntu-latest
     env:
-      CACHE_DIR: ${{ github.workspace }}/.ccache    
+      CACHE_DIR: ${{ github.workspace }}/.ccache
+      PYTHONPATH: ${{ github.workspace }}/build/tools/mpact/python_packages/mpact    
     steps:
     - uses: actions/checkout@v4
       with:
@@ -31,10 +32,6 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: 3.11 # Install the python version needed
-
-    - name: Set PYTHONPATH
-      run: export PYTHONPATH=build/tools/mpact/python_packages/mpact
-      shell: bash
 
     - name: Set up ccache
       uses: hendrikmuhs/ccache-action@v1.2
