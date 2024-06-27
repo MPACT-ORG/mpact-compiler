@@ -52,7 +52,7 @@ set(_source_components
   MLIRPythonExtension.Core
   MLIRPythonExtension.RegisterEverything
 
-  # We need various modules form torch-mlir.
+  # We need various modules from torch-mlir.
   TorchMLIRPythonSources.Importers
   TorchMLIRPythonSources.Dialects
   TorchMLIRPythonSources.PublicAPI
