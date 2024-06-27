@@ -36,14 +36,40 @@ jobs:
       run: export PYTHONPATH=build/tools/mpact/python_packages/mpact
       shell: bash
 
-    - name: Build
-      run: cmake --build build --target build-benchmark-mpact
+    - name: Set up ccache
+      uses: hendrikmuhs/ccache-action@v1.2
 
     - name: Install requirements
       run: |
            export CCACHE_DIR=${{ env.CACHE_DIR }}
            python -m pip install --upgrade pip
+           python -m pip install --upgrade pip
            python -m pip install pytest pytest-benchmark
+           python -m pip install -r externals/torch-mlir/requirements.txt
+           python -m pip install -r externals/torch-mlir/torchvision-requirements.txt
+   
+    - name: Create build directory
+      run: mkdir build
+
+    - name: Configure CMake
+      run: >
+        cmake -GNinja -Bbuild
+        -DCMAKE_BUILD_TYPE=Release
+        -DLLVM_ENABLE_PROJECTS=mlir
+        -DLLVM_ENABLE_ASSERTIONS=ON
+        -DLLVM_EXTERNAL_PROJECTS="torch-mlir;mpact"
+        -DLLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR="${PWD}/externals/torch-mlir"
+        -DLLVM_EXTERNAL_MPACT_SOURCE_DIR="${PWD}"
+        -DLLVM_TARGETS_TO_BUILD=host
+        -DMLIR_ENABLE_BINDINGS_PYTHON=ON
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_CXX_COMPILER=clang++
+        "externals/torch-mlir/externals/llvm-project/llvm"
+
+    - name: Build
+      run: cmake --build build --target build-benchmark-mpact
 
     - name: Run benchmark
       run: pytest benchmark/python/benchmarks/regression_benchmark.py --benchmark-json output.json
