@@ -1,10 +1,15 @@
 name: Regression benchmark
 
 on:
-  workflow_run:
-    workflows: [Build and test]
-    types: [completed]
-    # branches: [main]
+  # workflow_run:
+  #   workflows:
+  #     - Check code formatting
+  #   types:
+  #     - completed
+  #   branches:
+  #     - regression_bench
+  pull_request:
+    branches: [ "main" ]
 
 permissions:
   contents: write
