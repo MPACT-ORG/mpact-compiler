@@ -62,4 +62,4 @@ def test_nop_sparse(benchmark):
 
 
 def test_sddmm_sparse(benchmark):
-    benchmark(SDDMMNet(), sparse_tensor1, dense_tensor2, dense_tensor3)
+    benchmark(SDDMMNet(), temp, temp, temp)
