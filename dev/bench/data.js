@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1719612312735,
+  "lastUpdate": 1719612807752,
   "repoUrl": "https://github.com/MPACT-ORG/mpact-compiler",
   "entries": {
     "Benchmark": [
@@ -208,6 +208,110 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0006716290731200427",
             "extra": "mean: 42.69626910526444 msec\nrounds: 19"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "MPACT-ORG",
+            "username": "MPACT-ORG"
+          },
+          "committer": {
+            "name": "MPACT-ORG",
+            "username": "MPACT-ORG"
+          },
+          "id": "59fc5a073bebb037b2051bbe7c8a63dcf2ad82dc",
+          "message": "[mpact][benchmark] add regression benchmark to gh page",
+          "timestamp": "2024-06-28T20:55:50Z",
+          "url": "https://github.com/MPACT-ORG/mpact-compiler/pull/52/commits/59fc5a073bebb037b2051bbe7c8a63dcf2ad82dc"
+        },
+        "date": 1719612806541,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_mv_dense",
+            "value": 5909.837407029962,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000008143470165037013",
+            "extra": "mean: 169.2093929370145 usec\nrounds: 1784"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_mm_dense",
+            "value": 34.25301200542631,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0003366944250263363",
+            "extra": "mean: 29.19451287500152 msec\nrounds: 32"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_add_dense",
+            "value": 5882.077387952132,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00003686250866771616",
+            "extra": "mean: 170.0079638612429 usec\nrounds: 2352"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_mul_dense",
+            "value": 5877.128788845766,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000029053414735450336",
+            "extra": "mean: 170.1511122059985 usec\nrounds: 3654"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_nop_dense",
+            "value": 954326.869162598,
+            "unit": "iter/sec",
+            "range": "stddev: 2.122459628214424e-7",
+            "extra": "mean: 1.0478590012638742 usec\nrounds: 122760"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_sddmm_dense",
+            "value": 4.968651510614152,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0006829851952923742",
+            "extra": "mean: 201.26185099996974 msec\nrounds: 5"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_mv_sparse",
+            "value": 12373.282557341212,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000045490635324041385",
+            "extra": "mean: 80.81929717241351 usec\nrounds: 2830"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_mm_sparse",
+            "value": 21.285310885533054,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0015616750096097195",
+            "extra": "mean: 46.980756136367646 msec\nrounds: 22"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_add_sparse",
+            "value": 203.30817935712298,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0007360380529483004",
+            "extra": "mean: 4.9186412625506835 msec\nrounds: 259"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_mul_sparse",
+            "value": 188.23867331086552,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00010421745534155547",
+            "extra": "mean: 5.312404631903438 msec\nrounds: 163"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_nop_sparse",
+            "value": 949008.389438308,
+            "unit": "iter/sec",
+            "range": "stddev: 1.9566124260579267e-7",
+            "extra": "mean: 1.053731464473009 usec\nrounds: 181786"
+          },
+          {
+            "name": "benchmark/python/benchmarks/regression_benchmark.py::test_sddmm_sparse",
+            "value": 22.958249302316247,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0018635426701932051",
+            "extra": "mean: 43.55732821052303 msec\nrounds: 19"
           }
         ]
       }
