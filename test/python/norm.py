@@ -28,7 +28,18 @@ adj_mat = (
 # CHECK:                [0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000],
 # CHECK:                [0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000],
 # CHECK:                [0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000]{{\]}})
+#
+# TODO: first row?
+#
 # CHECK: mpact
+# CHECK:   {{\[}}[0.   0.   0.   0.   0.   0.   0.   0.  ]
+# CHECK:         [0.   0.25 0.   0.   0.25 0.   0.   0.  ]
+# CHECK:         [0.   0.   1.   0.   0.   0.   0.   0.  ]
+# CHECK:         [0.   0.   0.   0.25 0.25 0.   0.   0.  ]
+# CHECK:         [0.   0.   0.   0.25 0.25 0.   0.   0.  ]
+# CHECK:         [0.   0.   0.   0.   0.   1.   0.   0.  ]
+# CHECK:         [0.   0.   0.   0.   0.   0.   1.   0.  ]
+# CHECK:         [0.   0.   0.   0.   0.   0.   0.   1.  ]{{\]}}
 #
 
 # Run it with PyTorch.
@@ -37,9 +48,6 @@ res = net(adj_mat)
 print(res)
 
 # Run it with MPACT.
-#
-# TODO: make this work, crashes in TORCH-MLIR
-#
 print("mpact")
-# res = mpact_jit(net, adj_mat)
-# print(res)
+res = mpact_jit(net, adj_mat)
+print(res)
