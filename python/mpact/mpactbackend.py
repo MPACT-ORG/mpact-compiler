@@ -212,7 +212,7 @@ LOWERING_PIPELINE_TEMPLATE = (
     + ",".join(
         [
             "func.func(linalg-generalize-named-ops)",
-            # Run pre sparsification pass to fused convert/cast op into
+            # Run pre-sparsification pass to fuse convert/cast op into
             # producer as they might hinder kernel fusions.
             "pre-sparsification-rewrite",
             "func.func(linalg-fuse-elementwise-ops)",
