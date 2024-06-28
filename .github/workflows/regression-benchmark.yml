@@ -85,4 +85,4 @@ jobs:
         alert-comment-cc-users: '@yinying-lisa-li'
         # Push and deploy GitHub pages branch automatically
         auto-push: true
-        alert-threshold: 150%
+        alert-threshold: 120%
