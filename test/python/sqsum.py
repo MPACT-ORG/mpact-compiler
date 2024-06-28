@@ -28,8 +28,10 @@ print(res)
 
 # Run it with MPACT.
 print("mpact")
-# TODO: make this work, expose `sparse-emit-strategy=sparse-iterator` to
-# mini-pipeline.
+# Try sparsification with sparse iterator
+# TODO: will work after explicit value is specified in the encoding.
 # res = mpact_jit(net, adj_mat, use_sp_it=True)
+# print(res)
+# Try sparsification directly with scf.for/while
 res = mpact_jit(net, adj_mat)
 print(res)
