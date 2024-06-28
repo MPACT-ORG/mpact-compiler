@@ -10,6 +10,8 @@ dense_tensor2 = generate_tensor(1, SHAPE, SPARSITY)
 dense_tensor3 = generate_tensor(2, SHAPE, SPARSITY)
 dense_vector = generate_tensor(1, (SHAPE[0],), SPARSITY)
 
+temp = generate_tensor(0, (2046, 2046), 0.5)
+
 sparse_tensor1 = dense_tensor1.to_sparse_csr()
 sparse_tensor2 = dense_tensor2.to_sparse_csr()
 sparse_tensor3 = dense_tensor3.to_sparse_csr()
@@ -36,7 +38,7 @@ def test_nop_dense(benchmark):
 
 
 def test_sddmm_dense(benchmark):
-    benchmark(SDDMMNet(), dense_tensor1, dense_tensor2, dense_tensor3)
+    benchmark(SDDMMNet(), temp, temp, temp)
 
 
 def test_mv_sparse(benchmark):
