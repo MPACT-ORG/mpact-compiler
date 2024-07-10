@@ -3,7 +3,7 @@
 import torch
 import numpy as np
 
-from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
+from mpact.mpactbackend import mpact_jit
 
 from mpact.models.kernels import MMNet
 
