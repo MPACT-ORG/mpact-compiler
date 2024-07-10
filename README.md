@@ -9,6 +9,14 @@ a declarative language-based mechanism for collecting and expressing
 critical aspects of a target architecture in a way that can be reasoned
 about and leveraged by all passes in both MLIR and LLVM.
 
+## Installing the MPACT compiler
+
+To install the MPACT compiler through [PyPI](https://pypi.org/project/mpact/), please use the following command:
+
+```shell
+pip install mpact
+```
+
 ## Building the MPACT compiler
 
 To build and run the MPACT compiler from source (for developers),
@@ -95,6 +103,10 @@ And the following to run all benchmarks
 ```shell
 cmake --build build --target benchmark-mpact
 ```
+
+## Performance
+
+Performance of critical kernels for ML models are tracked for each commit. Any regression > 120% will be notified. Graphs could be found in the [github page](https://mpact-org.github.io/mpact-compiler/dev/bench/). 
 
 ## Notes
 
