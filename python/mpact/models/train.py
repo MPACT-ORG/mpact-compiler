@@ -5,7 +5,6 @@ import torch.nn.functional as F
 def training_loop(model, optimizer, loss_function, train, validation, epochs=10):
     """A rudimentary PyTorch training loop for classification with training and validation data."""
     for epoch in range(epochs):
-
         # Switch to training mode.
         model.train()
         tloss = 0.0
