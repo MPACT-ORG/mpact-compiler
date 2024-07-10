@@ -24,3 +24,8 @@ you can use `--benchmark-filter` flag like the following example:
 ```shell
 python path/to/the/kernels_benchmark.py --benchmark-filter=add
 ```
+
+### Profiler
+
+Utils for profiling python scripts and pytorch models could be found in
+benchmark/python/utils/profiler.py.
