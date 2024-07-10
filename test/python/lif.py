@@ -2,7 +2,7 @@
 
 import torch
 
-from mpact.mpactbackend import mpact_jit, mpact_jit_compile, mpact_jit_run
+from mpact.mpactbackend import mpact_jit
 
 from mpact.models.lif import LIFSumOfSq
 

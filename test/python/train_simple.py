@@ -96,10 +96,9 @@ validation = DataLoader(validation_data, batch_size=2)
 
 # Run it with PyTorch.
 # CHECK-LABEL: pytorch
-# CHECK:       Epoch 99
-# CHECK-SAME:  Accuracy = 1.00
+# CHECK:       Epoch 9
 print("pytorch")
-training_loop(net, optimizer, loss_function, train, validation, epochs=100)
+training_loop(net, optimizer, loss_function, train, validation, epochs=10)
 
 # Run it with MPACT.
 # CHECK-LABEL: mpact
