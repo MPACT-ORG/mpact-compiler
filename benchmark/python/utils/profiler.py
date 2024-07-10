@@ -3,9 +3,9 @@ import cProfile
 from pstats import Stats
 
 
-def profile_torch(func, args, row_limit=10,
-                  save_output=False, func_name=None,
-                  file_name="trace"):
+def profile_torch(
+    func, args, row_limit=10, save_output=False, func_name=None, file_name="trace"
+):
     """Use PyTorch's profiler to profile torch ops.
 
     To see the graph: upload trace.json to chrome://tracing
@@ -17,14 +17,12 @@ def profile_torch(func, args, row_limit=10,
     with torch.profiler.profile() as prof:
         with torch.profiler.record_function(func_name):
             func(*args)
-    print(prof.key_averages().table(sort_by="cpu_time_total",
-                                    row_limit=row_limit))
+    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=row_limit))
     if save_output:
         prof.export_chrome_trace(f"{file_name}.json")
 
 
-def profile_python(func, args, row_limit=10, save_output=False,
-                   file_name="stats"):
+def profile_python(func, args, row_limit=10, save_output=False, file_name="stats"):
     """Use cProfile to profile python function calls.
 
     To see the graph, run the following commands:
@@ -36,7 +34,7 @@ def profile_python(func, args, row_limit=10, save_output=False,
     func(*args)
     pr.disable()
     stats = Stats(pr)
-    stats.sort_stats('tottime').print_stats(row_limit)
+    stats.sort_stats("tottime").print_stats(row_limit)
     if save_output:
         pr.dump_stats(f"{file_name}.prof")
 
@@ -47,12 +45,9 @@ if __name__ == "__main__":
     from mpact_benchmark.utils.tensor_generator import generate_tensor
     from mpact.mpactbackend import mpact_jit
 
-
     # Generate input tensors.
-    dense_tensor1 = generate_tensor(seed=0, shape=(32, 32),
-                                    sparsity=0.8)
-    dense_tensor2 = generate_tensor(seed=1, shape=(32, 32),
-                                    sparsity=0.8)
+    dense_tensor1 = generate_tensor(seed=0, shape=(32, 32), sparsity=0.8)
+    dense_tensor2 = generate_tensor(seed=1, shape=(32, 32), sparsity=0.8)
     sparse_tensor1 = dense_tensor1.to_sparse_csr()
     sparse_tensor2 = dense_tensor2.to_sparse_csr()
 
@@ -60,8 +55,9 @@ if __name__ == "__main__":
     # MPACT sparse.
     profile_torch(mpact_jit, (MMNet(), sparse_tensor1, sparse_tensor2))
     # Torch sparse.
-    profile_torch(MMNet(), (sparse_tensor1, sparse_tensor2),
-                  func_name="sparsexsparse matmul")
+    profile_torch(
+        MMNet(), (sparse_tensor1, sparse_tensor2), func_name="sparsexsparse matmul"
+    )
 
     # Profile with cProfile for Python function calls.
     # MPACT sparse.
