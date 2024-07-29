@@ -2,6 +2,16 @@ import torch
 import torch.nn.functional as F
 
 
+def num_all_parameters(model):
+    """Returns the number of all parameters in a model."""
+    return sum(p.numel() for p in model.parameters())
+
+
+def num_parameters(model):
+    """Returns the number of trainable parameters in a model."""
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
 def training_loop(model, optimizer, loss_function, train, validation, epochs=10):
     """A rudimentary PyTorch training loop for classification with training and validation data."""
     for epoch in range(epochs):
@@ -27,7 +37,9 @@ def training_loop(model, optimizer, loss_function, train, validation, epochs=10)
             output = model(inp)
             loss = loss_function(output, target)
             vloss += loss.data.item()
-            correct = torch.eq(torch.max(F.softmax(output), dim=1)[1], target).view(-1)
+            correct = torch.eq(
+                torch.max(F.softmax(output, dim=1), dim=1)[1], target
+            ).view(-1)
             num_correct += torch.sum(correct).item()
             num_total += correct.shape[0]
 
