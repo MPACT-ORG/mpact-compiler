@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from mpact.mpactbackend import mpact_jit
 from mpact.models.kernels import SimpleNet
-from mpact.models.train import training_loop
+from mpact.models.train import training_loop, num_all_parameters, num_parameters
 
 
 A = torch.tensor(
@@ -93,6 +93,12 @@ loss_function = torch.nn.CrossEntropyLoss()
 train = DataLoader(train_data, batch_size=2)
 validation = DataLoader(validation_data, batch_size=2)
 
+
+# CHECK-LABEL: parameters
+# CHECK-COUNT-2: 182
+print("parameters")
+print(num_all_parameters(net))
+print(num_parameters(net))
 
 # Run it with PyTorch.
 # CHECK-LABEL: pytorch
