@@ -11,6 +11,7 @@ configure_lit_site_cfg(
 
 set(MPACT_TEST_DEPENDS
         FileCheck count not
+	MPACTBenchmarkPythonModules
 	MPACTPythonModules
         TorchMLIRPythonModules
         torch-mlir-opt

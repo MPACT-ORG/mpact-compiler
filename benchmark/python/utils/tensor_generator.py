@@ -75,3 +75,56 @@ def generate_tensor(
 
     result = np.reshape(flat_output, shape).astype(dtype)
     return torch.from_numpy(result)
+
+
+def print_matrix_market_format(tensor: torch.Tensor):
+    """Prints the matrix market format for a sparse matrix.
+
+    Args:
+      tensor: sparse matrix (real type)
+    """
+    if len(tensor.shape) != 2:
+        raise ValueError("Unexpected rank : %d (matrices only)" % len(tensor.shape))
+    if tensor.dtype != torch.float32 and tensor.dtype != torch.float64:
+        raise ValueError("Unexpected type : %s" % tensor.dtype)
+
+    h = tensor.shape[0]
+    w = tensor.shape[1]
+    nnz = sum([1 if tensor[i, j] != 0 else 0 for i in range(h) for j in range(w)])
+    density = (100.0 * nnz) / tensor.numel()
+    print("%%MatrixMarket matrix coordinate real general")
+    print("% https://math.nist.gov/MatrixMarket/formats.html")
+    print("%")
+    print("%% density = %4.2f%%" % density)
+    print("%")
+    print(h, w, nnz)
+    for i in range(h):
+        for j in range(w):
+            if tensor[i, j] != 0:
+                print(i + 1, j + 1, tensor[i, j].item())
+
+
+def print_extended_frostt_format(tensor: torch.Tensor):
+    """Prints the Extended FROSTT format for a sparse tensor.
+
+    Args:
+      tensor: sparse tensor
+    """
+    a = tensor.numpy()
+    nnz = sum([1 if x != 0 else 0 for x in np.nditer(a)])
+    density = (100.0 * nnz) / tensor.numel()
+    print("# Tensor in Extended FROSTT file format")
+    print("# http://frostt.io/tensors/file-formats.html")
+    print("# extended with two metadata lines:")
+    print("#   rank nnz")
+    print("#   dims (one per rank)")
+    print("#")
+    print("# density = %4.2f%%" % density)
+    print("#")
+    print(len(tensor.shape), nnz)
+    print(*tensor.shape, sep=" ")
+    it = np.nditer(a, flags=["multi_index"])
+    for x in it:
+        if x != 0:
+            print(*[i + 1 for i in it.multi_index], sep=" ", end=" ")
+            print(x)
