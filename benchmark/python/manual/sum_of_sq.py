@@ -15,8 +15,7 @@ def runbench_eager(tag, sp, net, x, num_iters=1000):
         checksum = checksum + res
     end = time.time()
     time_ms = (end - start) * 1000 / num_iters
-    # print("%s : %.2f : %8.4f ms. : checksum=%d" % (tag, sp, time_ms, checksum))
-    print(time_ms)
+    print("%s : %.2f : %8.4f ms. : checksum=%d" % (tag, sp, time_ms, checksum))
 
 
 def runbench_mpact(tag, sp, net, x, num_iters=1000):
@@ -29,8 +28,7 @@ def runbench_mpact(tag, sp, net, x, num_iters=1000):
         checksum = checksum + res
     end = time.time()
     time_ms = (end - start) * 1000 / num_iters
-    # print("%s : %.2f : %8.4f ms. : checksum=%d" % (tag, sp, time_ms, checksum))
-    print(time_ms)
+    print("%s : %.2f : %8.4f ms. : checksum=%d" % (tag, sp, time_ms, checksum))
 
 
 class SqSumNet(torch.nn.Module):
@@ -55,7 +53,7 @@ for d in range(0, 101, 10):
     # into the MLIR sparse tensor type to make optimize it fully.
     s = x.to_sparse_csr()
 
-    # runbench_eager("PyTorch (dense) ", sparsity, net, x)
-    # runbench_mpact("MPACT   (dense) ", sparsity, net, x)
-    # runbench_eager("PyTorch (sparse)", sparsity, net, s)
+    runbench_eager("PyTorch (dense) ", sparsity, net, x)
+    runbench_mpact("MPACT   (dense) ", sparsity, net, x)
+    runbench_eager("PyTorch (sparse)", sparsity, net, s)
     runbench_mpact("MPACT   (sparse)", sparsity, net, s)
