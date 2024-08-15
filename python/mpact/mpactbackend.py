@@ -278,8 +278,7 @@ LOWERING_PIPELINE_TEMPLATE = (
 class MpactBackendCompiler:
     """Main entry-point for the MPACT backend compiler."""
 
-    def __init__(self, opt_level, use_sp_it, parallel,
-                 enable_ir_printing, num_threads):
+    def __init__(self, opt_level, use_sp_it, parallel, enable_ir_printing, num_threads):
         self.opt_level = opt_level
         self.use_sp_it = use_sp_it
         self.parallel = parallel
@@ -292,13 +291,14 @@ class MpactBackendCompiler:
             if self.use_sp_it
             else "vl=16 enable-simd-index32"
         )
-        omp_options = (f"num-threads={self.num_threads}")
+        omp_options = f"num-threads={self.num_threads}"
         # TODO: enable the parallelization strategy
         # once MLIR bump is completed.
         # if self.parallel:
         #     sp_options += f" parallelization-strategy={self.parallel}"
         LOWERING_PIPELINE = LOWERING_PIPELINE_TEMPLATE.format(
-            sp_options=sp_options, omp_options=omp_options)
+            sp_options=sp_options, omp_options=omp_options
+        )
         """Compiles an imported module, with a flat list of functions.
         The module is expected to be in linalg-on-tensors + scalar code form.
 
@@ -473,9 +473,16 @@ def export_and_import(f, *args, **kwargs):
     return fx_importer.module
 
 
-def mpact_jit_compile(f, *args, opt_level=2, use_sp_it=False, 
-                      parallel="none", enable_ir_printing=False,
-                      num_threads = 1, **kwargs):
+def mpact_jit_compile(
+    f,
+    *args,
+    opt_level=2,
+    use_sp_it=False,
+    parallel="none",
+    enable_ir_printing=False,
+    num_threads=1,
+    **kwargs,
+):
     """This method compiles the given callable using the MPACT backend."""
     # Import module and lower into Linalg IR.
     module = export_and_import(f, *args, **kwargs)
@@ -490,11 +497,13 @@ def mpact_jit_compile(f, *args, opt_level=2, use_sp_it=False,
         enable_ir_printing=enable_ir_printing,
     )
     # Compile with MPACT backend compiler.
-    backend = MpactBackendCompiler(opt_level=opt_level,
-                                   use_sp_it=use_sp_it,
-                                   parallel=parallel,
-                                   enable_ir_printing=enable_ir_printing,
-                                   num_threads=num_threads)
+    backend = MpactBackendCompiler(
+        opt_level=opt_level,
+        use_sp_it=use_sp_it,
+        parallel=parallel,
+        enable_ir_printing=enable_ir_printing,
+        num_threads=num_threads,
+    )
     compiled = backend.compile(module)
     invoker = backend.load(compiled)
     return invoker, f

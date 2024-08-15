@@ -24,8 +24,8 @@ add_lit_testsuite(check-mpact "Running the MPACT regression tests"
 set_target_properties(check-mpact PROPERTIES FOLDER "Tests")
 
 # TODO: find omp library.
-find_package(OpenMP REQUIRED)
-add_compile_options(${OpenMP_CXX_FLAGS})
+# find_package(OpenMP REQUIRED)
+# add_compile_options(${OpenMP_CXX_FLAGS})
 # target_link_libraries(check-mpact OpenMP::OpenMP_CXX)
 
 add_lit_testsuites(MPACT ${CMAKE_CURRENT_SOURCE_DIR} DEPENDS ${TORCH_MLIR_TEST_DEPENDS})

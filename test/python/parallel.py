@@ -15,6 +15,7 @@ def run_test(f, *args, **kwargs):
     f(*args, **kwargs)
     gc.collect()
 
+
 net = MMNet()
 
 # Construct dense and sparse matrices.
@@ -35,6 +36,12 @@ S = A.to_sparse_csr()
 # TODO: enable the check test.
 # C-HECK: omp.parallel
 # CHECK: openmp
-run_test(mpact_jit, net, X, Y,
-         parallel="any-storage-any-loop", enable_ir_printing=True,
-         num_threads=10)
+run_test(
+    mpact_jit,
+    net,
+    X,
+    Y,
+    parallel="any-storage-any-loop",
+    enable_ir_printing=True,
+    num_threads=10,
+)
