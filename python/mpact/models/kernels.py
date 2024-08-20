@@ -7,18 +7,18 @@ class MVNet(torch.nn.Module):
 
 
 class MMNet(torch.nn.Module):
-    def forward(self, x, v):
-        return torch.mm(x, v)
+    def forward(self, x, y):
+        return torch.mm(x, y)
 
 
 class AddNet(torch.nn.Module):
-    def forward(self, x, v):
-        return torch.add(x, v)
+    def forward(self, x, y):
+        return torch.add(x, y)
 
 
 class MulNet(torch.nn.Module):
-    def forward(self, x, v):
-        return torch.mul(x, v)
+    def forward(self, x, y):
+        return torch.mul(x, y)
 
 
 class SelfNet(torch.nn.Module):
