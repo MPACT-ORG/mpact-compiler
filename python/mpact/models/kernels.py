@@ -36,6 +36,12 @@ class SqSum(torch.nn.Module):
         return (x * x).sum()
 
 
+class CountEq(torch.nn.Module):
+    def forward(self, x, s):
+        nums = (x == s).sum()
+        return nums
+
+
 class FeatureScale(torch.nn.Module):
     def forward(self, F):
         sum_vector = torch.sum(F, dim=1)
