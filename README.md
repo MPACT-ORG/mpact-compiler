@@ -91,6 +91,12 @@ To speed up the build process, you can set up [ccache](https://ccache.dev/downlo
 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 ```
 
+To enable parallelization with OpenMP runtime, add the following flag to the command above:
+
+```shell
+-DLLVM_ENABLE_RUNTIMES=openmp
+```
+
 Run the following to ensure the MPACT compiler builds and runs correctly.
 
 ```shell
