@@ -53,21 +53,21 @@ S = A.to_sparse_csr()
 # CHECK:         [24. 26. 28. 30.]
 # CHECK:         [32. 34. 36. 38.]
 # CHECK:         [40. 42. 44. 46.]{{\]}}
-# CH_ECK:   {{\[}}[16. 18. 18. 19.]
-# CH_ECK:         [20. 21. 22. 25.]
-# CH_ECK:         [24. 25. 26. 27.]
-# CH_ECK:         [31. 29. 30. 31.]{{\]}}
-# CH_ECK:   {{\[}}[ 0.  2.  2.  3.]
-# CH_ECK:         [ 4.  5.  6.  9.]
-# CH_ECK:         [ 8.  9. 10. 11.]
-# CH_ECK:         [15. 13. 14. 15.]{{\]}}
+# CHECK:   {{\[}}[16. 18. 18. 19.]
+# CHECK:         [20. 21. 22. 25.]
+# CHECK:         [24. 25. 26. 27.]
+# CHECK:         [31. 29. 30. 31.]{{\]}}
+# CHECK:   {{\[}}[ 0.  2.  2.  3.]
+# CHECK:         [ 4.  5.  6.  9.]
+# CHECK:         [ 8.  9. 10. 11.]
+# CHECK:         [15. 13. 14. 15.]{{\]}}
 # CHECK:  [0 1 2 2 3]
 # CHECK:  [1 3 0]
 # CHECK:  [2. 4. 6.]
 #
 
 # Run it with PyTorch.
-print("pytorch")
+print("pytorch", torch.__version__)
 res = net(X, Y)
 print(res)
 res = net(S, Y)
@@ -81,10 +81,9 @@ print(res)
 print("mpact")
 res = mpact_jit(net, X, Y)
 print(res)
-# TODO: fix in pydev
-# res = mpact_jit(net, S, Y)
-# print(res)
-# res = mpact_jit(net, X, S)
-# print(res)
+res = mpact_jit(net, S, Y)
+print(res)
+res = mpact_jit(net, X, S)
+print(res)
 res = mpact_jit(net, S, S)
 print_sparse(res)
