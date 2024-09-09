@@ -319,9 +319,8 @@ def export_and_import(f, *args, **kwargs):
     return fx_importer.module
 
 
-def mpact_jit_compile(f, *args, opt_level=2, use_sp_it=False, **kwargs):
-    """This method compiles the given callable using the MPACT backend."""
-    # Import module and lower into Linalg IR.
+def mpact_linalg(f, *args, **kwargs):
+    """Imports a function as module and lowers it into Linalg IR."""
     module = export_and_import(f, *args, **kwargs)
     run_pipeline_with_repro_report(
         module,
@@ -333,7 +332,12 @@ def mpact_jit_compile(f, *args, opt_level=2, use_sp_it=False, **kwargs):
         "Lowering TorchFX IR -> Linalg IR",
         enable_ir_printing=False,
     )
-    # Compile with MPACT backend compiler.
+    return module
+
+
+def mpact_jit_compile(f, *args, opt_level=2, use_sp_it=False, **kwargs):
+    """This method compiles the given callable using the MPACT backend."""
+    module = mpact_linalg(f, *args, **kwargs)
     backend = MpactBackendCompiler(opt_level=opt_level, use_sp_it=use_sp_it)
     compiled = backend.compile(module)
     invoker = backend.load(compiled)
