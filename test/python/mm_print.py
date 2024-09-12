@@ -3,7 +3,7 @@
 import torch
 import numpy as np
 
-from mpact.mpactbackend import mpact_linalg
+from mpact.mpactbackend import mpact_linalg, mpact_stablehlo
 
 from mpact.models.kernels import MMNet
 
@@ -29,3 +29,14 @@ Y = torch.arange(16, 32, dtype=torch.float32).view(4, 4)
 
 linalg = mpact_linalg(net, X, Y)
 print(linalg)
+
+#
+# CHECK: module {
+# CHECK:   func.func @main(%[[A0:.*]]: tensor<4x4xf32>, %[[A1:.*]]: tensor<4x4xf32>) -> tensor<4x4xf32> {
+# CHECK:     %[[T0:.*]] = stablehlo.dot_general %[[A0]], %[[A1]], contracting_dims = [1] x [0] : (tensor<4x4xf32>, tensor<4x4xf32>) -> tensor<4x4xf32>
+# CHECK:     return %[[T0]] : tensor<4x4xf32>
+# CHECK:   }
+# CHECK: }
+
+stablehlo = mpact_stablehlo(net, X, Y)
+print(stablehlo)

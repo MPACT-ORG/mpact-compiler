@@ -320,7 +320,7 @@ def export_and_import(f, *args, **kwargs):
 
 
 def mpact_linalg(f, *args, **kwargs):
-    """Imports a function as module and lowers it into Linalg IR."""
+    """Imports a callable as module and lowers it into Linalg IR."""
     module = export_and_import(f, *args, **kwargs)
     run_pipeline_with_repro_report(
         module,
@@ -330,6 +330,22 @@ def mpact_linalg(f, *args, **kwargs):
             "torch-backend-to-linalg-on-tensors-backend-pipeline)"
         ),
         "Lowering TorchFX IR -> Linalg IR",
+        enable_ir_printing=False,
+    )
+    return module
+
+
+def mpact_stablehlo(f, *args, **kwargs):
+    """Imports a callable as module and lowers it into StableHLO IR."""
+    module = export_and_import(f, *args, **kwargs)
+    run_pipeline_with_repro_report(
+        module,
+        (
+            "builtin.module("
+            "func.func(torch-decompose-complex-ops),"
+            "torch-backend-to-stablehlo-backend-pipeline)"
+        ),
+        "Lowering TorchFX IR -> StableHLO IR",
         enable_ir_printing=False,
     )
     return module
